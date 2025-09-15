@@ -9,7 +9,8 @@ class SupportVectorClassifier(Model):
         self.bias = 0.0
 
     def predict(self, X):
-        return X.dot(self.weights) + self.bias
+        raw_predictions = X.dot(self.weights) + self.bias
+        return np.where(raw_predictions >= 0, 1, 0)
 
     def get_params(self):
         return np.concatenate([self.weights, [self.bias]])
