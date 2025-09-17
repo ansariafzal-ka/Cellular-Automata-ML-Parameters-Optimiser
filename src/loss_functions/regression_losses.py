@@ -41,7 +41,7 @@ class EpsilonIntensitiveLoss(LossFunction):
     def __init__(self, epsilon=0.1):
         self.epsilon = epsilon
 
-    def comput_loss(self, y_true, y_predictions):
+    def compute_loss(self, y_true, y_predictions):
         return np.mean(np.maximum(0, np.abs(y_true - y_predictions) - self.epsilon))
     
     def compute_gradient(self, X, y_true, y_predictions):
@@ -57,4 +57,7 @@ class EpsilonIntensitiveLoss(LossFunction):
         dw = (1/m) * X.T.dot(signed_loss)
         db = (1/m) * np.sum(signed_loss)
         return np.concatenate([dw.flatten(), [db]])
+    
+
+
         

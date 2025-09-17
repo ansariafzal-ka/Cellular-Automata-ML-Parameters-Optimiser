@@ -6,12 +6,15 @@ from src.utils import configurations
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score
 
 n_features = 1
 train_mse_results = []
 test_mse_results = []
 train_mae_results = []
 test_mae_results = []
+train_r2_results = []
+test_r2_results = []
 
 df = pd.read_csv("src/datasets/simple_linear_regression_data.csv")
 
@@ -44,11 +47,15 @@ train_mse_bgd = mse.compute_loss(y_train, y_train_pred_bgd)
 test_mse_bgd = mse.compute_loss(y_test, y_test_pred_bgd)
 train_mae_bgd = mae.compute_loss(y_train, y_train_pred_bgd)
 test_mae_bgd = mae.compute_loss(y_test, y_test_pred_bgd)
+train_r2_bgd = r2_score(y_train, y_train_pred_bgd)
+test_r2_bgd = r2_score(y_test, y_test_pred_bgd)
 
 train_mse_results.append(train_mse_bgd)
 test_mse_results.append(test_mse_bgd)
 train_mae_results.append(train_mae_bgd)
 test_mae_results.append(test_mae_bgd)
+train_r2_results.append(train_r2_bgd)
+test_r2_results.append(test_r2_bgd)
 
 ## STOCHASTIC GRADIENT DESCENT (SGD)
 sgd_results = stochastic_gradient_descent.optimise(model, mse, X_train, y_train, max_iters=configurations.MAX_ITERS)
@@ -61,11 +68,15 @@ train_mse_sgd = mse.compute_loss(y_train, y_train_pred_sgd)
 test_mse_sgd = mse.compute_loss(y_test, y_test_pred_sgd)
 train_mae_sgd = mae.compute_loss(y_train, y_train_pred_sgd)
 test_mae_sgd = mae.compute_loss(y_test, y_test_pred_sgd)
+train_r2_sgd = r2_score(y_train, y_train_pred_sgd)
+test_r2_sgd = r2_score(y_test, y_test_pred_sgd)
 
 train_mse_results.append(train_mse_sgd)
 test_mse_results.append(test_mse_sgd)
 train_mae_results.append(train_mae_sgd)
 test_mae_results.append(test_mae_sgd)
+train_r2_results.append(train_r2_sgd)
+test_r2_results.append(test_r2_sgd)
 
 ## MINI-BATCH GRADIENT DESCENT (MBGD)
 mini_bgd_results = mini_batch_gradient_descent.optimise(model, mse, X_train, y_train, max_iters=configurations.MAX_ITERS)
@@ -78,11 +89,15 @@ train_mse_mbgd = mse.compute_loss(y_train, y_train_pred_mbgd)
 test_mse_mbgd = mse.compute_loss(y_test, y_test_pred_mbgd)
 train_mae_mbgd = mae.compute_loss(y_train, y_train_pred_mbgd)
 test_mae_mbgd = mae.compute_loss(y_test, y_test_pred_mbgd)
+train_r2_mbgd = r2_score(y_train, y_train_pred_mbgd)
+test_r2_mbgd = r2_score(y_test, y_test_pred_mbgd)
 
 train_mse_results.append(train_mse_mbgd)
 test_mse_results.append(test_mse_mbgd)
 train_mae_results.append(train_mae_mbgd)
 test_mae_results.append(test_mae_mbgd)
+train_r2_results.append(train_r2_mbgd)
+test_r2_results.append(test_r2_mbgd)
 
 
 print("="*50)
@@ -97,6 +112,8 @@ for i, optimizer in enumerate(optimizers):
     print(f"  Testing MSE:  {test_mse_results[i]:.4f}")
     print(f"  Training MAE: {train_mae_results[i]:.4f}")
     print(f"  Testing MAE:  {test_mae_results[i]:.4f}")
+    print(f"  Training r2 score: {train_r2_results[i]:.4f}")
+    print(f"  Testing r2 score: {test_r2_results[i]:.4f}")
 
 
 fig, ax = plt.subplots(1, 2, figsize=(14, 6))
