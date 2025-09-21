@@ -6,6 +6,7 @@ from src.utils import configurations
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
+# from sklearn.svm import SVC
 
 train_results = []
 test_results = []
@@ -60,3 +61,11 @@ y_test_pred_mbgd = model.predict(X_test)
 report_mbgd = classification_report(y_test, y_test_pred_mbgd)
 print("\nClassification Report for MBGD:")
 print(report_mbgd)
+
+
+# sk_model = SVC()
+# sk_model.fit(X_train, y_train)
+# sk_pred = sk_model.predict(X_test)
+# report_sk = classification_report(y_test, sk_pred)
+# print("\nClassification Report for sklearn:")
+# print(report_sk)

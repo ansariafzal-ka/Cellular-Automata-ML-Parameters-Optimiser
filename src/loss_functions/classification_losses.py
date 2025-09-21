@@ -31,7 +31,7 @@ class CategoricalCrossEntropy(LossFunction):
     
 class HingeLoss(LossFunction):
     def compute_loss(self, y_true, y_predictions):
-        y_true = np.where(y_true == 0, -1, 1)
+        y_true = np.where(y_true <= 0, -1, 1)
         return np.mean(np.maximum(0, 1 - y_true * y_predictions))
     
     def compute_gradient(self, X, y_true, y_prediction):

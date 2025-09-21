@@ -97,3 +97,14 @@ for i, optimizer in enumerate(optimizers):
     print(f"  Testing MAE:  {test_mae_results[i]:.4f}")
     print(f"  Training r2 score: {train_r2_results[i]:.4f}")
     print(f"  Testing r2 score: {test_r2_results[i]:.4f}")
+
+
+from sklearn.svm import SVR
+
+sk_model = SVR()
+sk_model.fit(X_train, y_train)
+sk_pred = sk_model.predict(X_test)
+print(f"--- Sklearn SVR ---")
+print(f"  Testing MSE: {mse.compute_loss(y_test, sk_pred)}")
+print(f"  Testing MAE:  {mae.compute_loss(y_test, sk_pred)}")
+print(f"  Testing r2 score: {r2_score(y_test, sk_pred)}")

@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
 
-n_features = 8
 train_mse_results = []
 test_mse_results = []
 train_mae_results = []
@@ -16,7 +15,7 @@ test_mae_results = []
 train_r2_results = []
 test_r2_results = []
 
-df = pd.read_csv("src/datasets/california_housing.csv")
+df = pd.read_csv("src/datasets/diabetes.csv")
 
 X = df.drop("target", axis=1)
 y = df["target"]
@@ -27,6 +26,8 @@ X_train = X_train.to_numpy()
 X_test = X_test.to_numpy()
 y_train = y_train.to_numpy()
 y_test = y_test.to_numpy()
+
+n_features = X_train.shape[1]
 
 model = LinearRegression(n_features=n_features)
 mse = MeanSquaredError()
