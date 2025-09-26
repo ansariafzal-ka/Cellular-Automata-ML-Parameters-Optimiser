@@ -58,31 +58,38 @@ class LogisticRegression(Model):
     def get_param_bounds(self):
         num_params = self.get_param_count()
         return [(-5, 5)] * num_params
-
-
-# might not use this class, because Linear Regression with polynomial features will suffice
-class PolynomialRegression(Model):
-
-    def __init__(self, n_features, degree=2):
+    
+class SoftmaxRegression(Model):
+    def __init__(self, n_features, n_classes):
         super().__init__()
-        self.poly = PolynomialFeatures(degree=degree, include_bias=False)
-        self.weights = np.zeros(self.poly.fit_transform(np.zeros((1, n_features))).shape[1])
-        self.bias = 0.0
+        self.weights = np.zeros((n_features, n_classes))
+        self.bias = np.zeros(n_classes)
+        self.n_classes = n_classes
+        self.n_features = n_features
 
+    def _softmax(self, z):
+
+        z_shifted = z - np.max(z, axis=1, keepdims=True)
+        exp_z = np.exp(z_shifted)
+        return exp_z / np.sum(exp_z, axis=1, keepdims=True)
+    
     def predict(self, X):
-        X_poly = self.poly.fit_transform(X)
-        return X_poly @ self.weights + self.bias
-
+        linear_model = X @ self.weights + self.bias
+        y_predicted = self._softmax(linear_model)
+        return y_predicted
+    
     def get_params(self):
-        return np.concatenate([self.weights, [self.bias]])
-
+        return np.concatenate([self.weights.flatten(), self.bias.flatten()])
+    
     def set_params(self, params):
-        self.weights = params[:-1]
-        self.bias = params[-1]
+        n_weight_params = self.n_features * self.n_classes
+        
+        self.weights = params[:n_weight_params].reshape(self.n_features, self.n_classes)
+        self.bias = params[n_weight_params:] 
 
     def get_param_count(self):
-        return len(self.weights) + 1
-
+        return self.n_features * self.n_classes + self.n_classes
+    
     def get_param_bounds(self):
         num_params = self.get_param_count()
-        return [(-5, 5)] * num_params
+        return [(-3, 3)] * num_params

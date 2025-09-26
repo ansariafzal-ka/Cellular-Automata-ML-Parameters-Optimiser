@@ -69,7 +69,7 @@ class MiniBatchGradientDescent(Optimiser):
 
     def optimise(self, model, loss_function, X, y, max_iters):
         param_bounds = model.get_param_bounds()
-        params = [np.random.uniform(min_val, max_val) for min_val, max_val in param_bounds]
+        params = np.array([np.random.uniform(min_val, max_val) for min_val, max_val in param_bounds])
         model.set_params(params)
 
         loss_history = []

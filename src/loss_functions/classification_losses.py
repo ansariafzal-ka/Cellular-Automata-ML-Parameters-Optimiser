@@ -16,11 +16,28 @@ class BinaryCrossEntropy(LossFunction):
         return np.concatenate([dw.flatten(), [db]])
     
 class CategoricalCrossEntropy(LossFunction):
+
+    def _to_one_hot(self, y, n_classes):
+        """Internal helper to convert integer labels to one-hot."""
+        # Use a property of y_prediction to get the number of classes
+        y_one_hot = np.zeros((len(y), n_classes))
+        y_one_hot[np.arange(len(y)), y] = 1
+        return y_one_hot
+
     def compute_loss(self, y_true, y_prediction):
+        if y_true.ndim == 1:
+            n_classes = y_prediction.shape[1]
+            y_true = self._to_one_hot(y_true, n_classes)
+
         y_prediction = np.clip(y_prediction, 1e-15, 1 - 1e-15)
         return -np.mean(np.sum(y_true * np.log(y_prediction), axis=1))
     
     def compute_gradient(self, X, y_true, y_prediction):
+
+        if y_true.ndim == 1:
+            n_classes = y_prediction.shape[1]
+            y_true = self._to_one_hot(y_true, n_classes)
+
         m = len(y_true)
         loss = y_prediction - y_true
         if len(X.shape) == 1:
