@@ -1,23 +1,26 @@
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
-from sklearn.model_selection import train_test_split
-from loss_functions.regression_losses import MeanSquaredError, MeanAbsoluteError
-import pandas as pd
+# test_ca_optimiser.py
+import numpy as np
+from optimisers.cellular_automata import CellularAutomataOptimiser
+from models.linear_models import LinearRegression  # Replace with your actual model class
+from loss_functions.regression_losses import MeanSquaredError
+import matplotlib.pyplot as plt
 
-df = pd.read_csv("./datasets/california_housing.csv")
+# Create sample data
 
-X = df.drop("target", axis=1)
-y = df["target"]
+X = np.random.rand(100, 1)
+slope = 2.5
+intercept = 1.0
+y = slope * X + intercept + 0.1 * np.random.randn(100, 1)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-lr = LinearRegression()
-lr.fit(X_train, y_train)
-y_pred = lr.predict(X_test)
-
+# Initialize optimiser and model
+optimiser = CellularAutomataOptimiser(L=3)
+model = LinearRegression(n_features=1)
 mse = MeanSquaredError()
-mae = MeanAbsoluteError()
 
-print(f"MSE: {mse.compute_loss(y_test, y_pred)}")
-print(f"MAE: {mae.compute_loss(y_test, y_pred)}")
-print(f"r2 score: {r2_score(y_test, y_pred)}")
+# Test one evaluation
+best_params, best_loss = optimiser.optimise(model, mse, X, y, max_iters=1)
+print(f"Best loss: {best_loss}")
+print(f"Best params: {best_params}")
+
+# plt.scatter(X, y)
+# plt.show()

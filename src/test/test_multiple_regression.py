@@ -5,6 +5,7 @@ from src.utils import configurations
 
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression as SK_LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
 
@@ -100,12 +101,34 @@ test_mae_results.append(test_mae_mbgd)
 train_r2_results.append(train_r2_mbgd)
 test_r2_results.append(test_r2_mbgd)
 
+## SKLEARN LINEAR REGRESSION
+sk_model = SK_LinearRegression()
+sk_model.fit(X_train, y_train)
+
+y_train_pred_sk = sk_model.predict(X_train)
+y_test_pred_sk = sk_model.predict(X_test)
+
+train_mse_sk = mse.compute_loss(y_train, y_train_pred_sk)
+test_mse_sk = mse.compute_loss(y_test, y_test_pred_sk)
+train_mae_sk = mae.compute_loss(y_train, y_train_pred_sk)
+test_mae_sk = mae.compute_loss(y_test, y_test_pred_sk)
+train_r2_sk = r2_score(y_train, y_train_pred_sk)
+test_r2_sk = r2_score(y_test, y_test_pred_sk)
+
+# Add to your results lists
+train_mse_results.append(train_mse_sk)
+test_mse_results.append(test_mse_sk)
+train_mae_results.append(train_mae_sk)
+test_mae_results.append(test_mae_sk)
+train_r2_results.append(train_r2_sk)
+test_r2_results.append(test_r2_sk)
+
 
 print("="*50)
 print("             OPTIMIZATION ALGORITHMS RESULTS")
 print("="*50)
 
-optimizers = ["Batch Gradient Descent", "Stochastic Gradient Descent", "Mini-Batch Gradient Descent"]
+optimizers = ["Batch Gradient Descent", "Stochastic Gradient Descent", "Mini-Batch Gradient Descent", "Sklearn LinearRegression"]
 
 for i, optimizer in enumerate(optimizers):
     print(f"--- {optimizer} ---")
@@ -115,3 +138,4 @@ for i, optimizer in enumerate(optimizers):
     print(f"  Testing MAE:  {test_mae_results[i]:.4f}")
     print(f"  Training r2 score: {train_r2_results[i]:.4f}")
     print(f"  Testing r2 score: {test_r2_results[i]:.4f}")
+    print()
