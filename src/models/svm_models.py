@@ -24,7 +24,7 @@ class SupportVectorClassifier(Model):
 
     def get_param_bounds(self):
         num_params = self.get_param_count()
-        return [(-5.0, 5.0)] * num_params
+        return [(-100.0, 100.0)] * num_params
     
 class SupportVectorRegression(Model):
     def __init__(self, n_features):
@@ -47,4 +47,4 @@ class SupportVectorRegression(Model):
 
     def get_param_bounds(self):
         num_params = self.get_param_count()
-        return [(-5.0, 5.0)] * num_params
+        return [(-100.0, 100.0)] * num_params

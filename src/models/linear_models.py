@@ -24,7 +24,7 @@ class LinearRegression(Model):
 
     def get_param_bounds(self):
         num_params = self.get_param_count()
-        return [(-5.0, 5.0)] * num_params # if there are 3 params then the result will be [(-5.0, 5.0), (-5.0, 5.0), (-5.0, 5.0)]
+        return [(-100.0, 100.0)] * num_params # if there are 3 params then the result will be [(-5.0, 5.0), (-5.0, 5.0), (-5.0, 5.0)]
 
 
 class LogisticRegression(Model):
@@ -57,7 +57,7 @@ class LogisticRegression(Model):
 
     def get_param_bounds(self):
         num_params = self.get_param_count()
-        return [(-5, 5)] * num_params
+        return [(-100.0, 100.0)] * num_params
     
 class SoftmaxRegression(Model):
     def __init__(self, n_features, n_classes):
@@ -92,4 +92,4 @@ class SoftmaxRegression(Model):
     
     def get_param_bounds(self):
         num_params = self.get_param_count()
-        return [(-3, 3)] * num_params
+        return [(-100.0, 100.0)] * num_params

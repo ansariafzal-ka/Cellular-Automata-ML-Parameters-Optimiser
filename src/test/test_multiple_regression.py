@@ -115,7 +115,6 @@ test_mae_sk = mae.compute_loss(y_test, y_test_pred_sk)
 train_r2_sk = r2_score(y_train, y_train_pred_sk)
 test_r2_sk = r2_score(y_test, y_test_pred_sk)
 
-# Add to your results lists
 train_mse_results.append(train_mse_sk)
 test_mse_results.append(test_mse_sk)
 train_mae_results.append(train_mae_sk)

@@ -16,6 +16,7 @@ train_mae_results = []
 test_mae_results = []
 train_r2_results = []
 test_r2_results = []
+params = []
 
 df = pd.read_csv("src/datasets/simple_linear_regression_data.csv")
 
@@ -58,6 +59,8 @@ test_mae_results.append(test_mae_bgd)
 train_r2_results.append(train_r2_bgd)
 test_r2_results.append(test_r2_bgd)
 
+params.append(bgd_results["parameters"])
+
 ## STOCHASTIC GRADIENT DESCENT (SGD)
 sgd_results = stochastic_gradient_descent.optimise(model, mse, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(sgd_results["parameters"])
@@ -79,6 +82,8 @@ test_mae_results.append(test_mae_sgd)
 train_r2_results.append(train_r2_sgd)
 test_r2_results.append(test_r2_sgd)
 
+params.append(sgd_results["parameters"])
+
 ## MINI-BATCH GRADIENT DESCENT (MBGD)
 mini_bgd_results = mini_batch_gradient_descent.optimise(model, mse, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(mini_bgd_results["parameters"])
@@ -99,6 +104,8 @@ train_mae_results.append(train_mae_mbgd)
 test_mae_results.append(test_mae_mbgd)
 train_r2_results.append(train_r2_mbgd)
 test_r2_results.append(test_r2_mbgd)
+
+params.append(mini_bgd_results["parameters"])
 
 ## SKLEARN SIMPLE LINEAR REGRESSION
 sk_model = SK_LinearRegression()
@@ -122,6 +129,8 @@ test_mae_results.append(test_mae_sk)
 train_r2_results.append(train_r2_sk)
 test_r2_results.append(test_r2_sk)
 
+params.append([sk_model.coef_, sk_model.intercept_])
+
 print("="*50)
 print("             OPTIMIZATION ALGORITHMS RESULTS")
 print("="*50)
@@ -130,6 +139,7 @@ optimizers = ["Batch Gradient Descent", "Stochastic Gradient Descent", "Mini-Bat
 
 for i, optimizer in enumerate(optimizers):
     print(f"--- {optimizer} ---")
+    print(f"Parameters: {params[i]}")
     print(f"  Training MSE: {train_mse_results[i]:.4f}")
     print(f"  Testing MSE:  {test_mse_results[i]:.4f}")
     print(f"  Training MAE: {train_mae_results[i]:.4f}")
@@ -137,21 +147,6 @@ for i, optimizer in enumerate(optimizers):
     print(f"  Training r2 score: {train_r2_results[i]:.4f}")
     print(f"  Testing r2 score: {test_r2_results[i]:.4f}")
     print()
-
-
-# Plot convergence for all methods
-# plt.figure(figsize=(12, 8))
-
-# plt.plot(bgd_results['loss_history'], label='Batch GD', alpha=0.7)
-# plt.plot(sgd_results['loss_history'], label='Stochastic GD', alpha=0.7)
-# plt.plot(mini_bgd_results['loss_history'], label='Mini-Batch GD', alpha=0.7)
-
-# plt.xlabel('Iterations')
-# plt.ylabel('Loss')
-# plt.title('Convergence Comparison of Gradient Descent Variants')
-# plt.legend()
-# plt.grid(True, alpha=0.3)
-# plt.show()
 
 fig, ax = plt.subplots(1, 2, figsize=(14, 6))
 
