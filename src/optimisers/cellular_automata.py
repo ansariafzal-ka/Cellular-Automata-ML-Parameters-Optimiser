@@ -2,11 +2,11 @@ from .base_optimiser import Optimiser
 import numpy as np
 
 class CellularAutomataOptimiser(Optimiser):
-    def __init__(self, L=5, mu=0.01, alpha=0.8, omega=0.01):
+    def __init__(self, L=5, mu=0.5, omega=0.5):
         super().__init__()
         self.L = L
-        self.mu = mu
-        self.alpha = alpha
+        self.mu = mu # used for classifying cells as good or bad
+        self.omega = omega # used to calculate the tolerance bounds to consider a good cell or not in the averaging.
 
     def _initialise_lattice(self, model):
             bounds = model.get_param_bounds()
@@ -54,8 +54,8 @@ class CellularAutomataOptimiser(Optimiser):
         normalised_relative_fitness = numerator / (denomenator + epsilon)
         is_good_cell = (normalised_relative_fitness <= self.mu)
 
-        return is_good_cell
-
+        return is_good_cell, normalised_relative_fitness
+    
     def _get_best_neighbour_params(self, i, j, P_lattice, loss_lattice):
         i_start = max(0, i - 1)
         i_end = min(self.L, i + 2)
@@ -87,60 +87,86 @@ class CellularAutomataOptimiser(Optimiser):
 
         return P_n
     
-    def _explore_params(self, current_P, P_best):
-         direction = P_best - current_P
-         P_new = current_P + self.alpha * direction
+    def _tolerance(self, model):
+         bounds = model.get_param_bounds()
+         a, b = bounds[0]
+         return self.omega * (b - a)
+    
+    def _exploit_params(self, model, loss_function, X, y, P_lattice, loss_lattice, F_min, F_max):
+         # classify cells as good or bad
+        is_good, _ = self._classify_cells(loss_lattice, F_min, F_max)
+        P_new_lattice = P_lattice.copy()
+        tolerance_width = self._tolerance(model)
 
-         return P_new
+        # loop through the entire lattice
+        for i in range(self.L):
+            for j in range(self.L):
+                # check if a cell is good, and start finding its moore neighbourhood
+                if is_good[i, j]:
+                    i_start = max(0, i - 1)
+                    i_end = min(self.L, i + 2)
+                    j_start = max(0, j - 1)
+                    j_end = min(self.L, j + 2)
+
+                    # find the good parameters in that moore neighbourhood
+                    good_neighbour_params = []
+                    for row in range(i_start, i_end):
+                        for col in range(j_start, j_end):
+                            if row == i and col == j:
+                                continue
+                            if is_good[row, col]:
+                                good_neighbour_params.append(P_lattice[row, col])   
+
+                    center_params = P_lattice[i, j]
+                    tolerated_neighbours = []
+
+                    for neighbour_params in good_neighbour_params:
+                        all_within_tolerance = True
+                        for param_idx in range(len(center_params)):
+                            lower = center_params[param_idx] - tolerance_width
+                            upper = center_params[param_idx] + tolerance_width
+
+                            if not (lower < neighbour_params[param_idx] < upper):
+                                all_within_tolerance = False
+                                break
+
+                        if all_within_tolerance:
+                            tolerated_neighbours.append(neighbour_params)
+
+                    if tolerated_neighbours:
+                        all_params_to_average = [center_params] + tolerated_neighbours
+                        new_params = np.mean(all_params_to_average, axis=0)
+
+                        model.set_params(new_params)
+                        y_pred = model.predict(X)
+                        loss_candidate = loss_function.compute_loss(y, y_pred)
+
+                        current_loss = loss_lattice[i, j]
+                        if loss_candidate < current_loss:
+                            print("better loss found!")
+                            P_new_lattice[i, j] = new_params
+
+        return P_new_lattice
+                        
 
     def optimise(self, model, loss_function, X, y, max_iters=1000):
-        # T=0: INITIALIZATION AND EVALUATION
+
         P_lattice, loss_lattice = self._initialise_lattice(model)
-        
-        # Store initial state for printing
         loss_lattice, F_min, F_max, P_best = self._evaluate_fitness(model, loss_function, X, y, P_lattice, loss_lattice)
-        initial_P_lattice = P_lattice.copy()
-        initial_loss_lattice = loss_lattice.copy()
 
-        # ITERATION LOOP
-        for t in range(max_iters):
-            # 1. Re-evaluate to get the current P_best for the entire lattice
+
+        print("\nInitial Loss Lattice:")
+        print(loss_lattice)
+
+        for exploit_iter in range(3):
+            P_lattice = self._exploit_params(model, loss_function, X, y, P_lattice, loss_lattice, F_min, F_max)
+    
+            # Re-evaluate fitness after each exploitation
             loss_lattice, F_min, F_max, P_best = self._evaluate_fitness(model, loss_function, X, y, P_lattice, loss_lattice)
-            self._classify_cells(loss_lattice, F_min, F_max) # Classification is done, but result (is_good_cell) is unused for this test
-            
-            # Prepare a new lattice for updates
-            P_new_lattice = P_lattice.copy()
-            
-            # 2. Apply Exploration Rule to ALL cells
-            for i in range(self.L):
-                for j in range(self.L):
-                    current_P = P_lattice[i, j]
-                    
-                    # Apply Exploration Rule (Rule 0) to ALL cells (Good or Bad)
-                    # NOTE: Clamping is omitted as per your request
-                    P_new = self._explore_params(current_P, P_best) 
-                    
-                    P_new_lattice[i, j] = P_new
+    
+            print(f"\nAfter Exploitation {exploit_iter + 1}:")
+            print(loss_lattice)
 
-            # 3. Update Lattice for next iteration
-            P_lattice = P_new_lattice
-        
-        # FINAL EVALUATION after all updates (max_iters)
-        loss_lattice, F_min, F_max, P_best = self._evaluate_fitness(model, loss_function, X, y, P_lattice, loss_lattice)
-        
-        # PRINTING ONLY THE REQUESTED INFORMATION
-        print("----------------------------------------------------------------")
-        print(f"--- CA-OF EXPLORATION-ONLY TEST ({max_iters} Iterations) ---")
-        print("----------------------------------------------------------------")
-        print(f"**Initial Parameter Lattice (T=0):**\n{initial_P_lattice}")
-        print("\n----------------------------------------------------------------")
-        print(f"**Initial Loss Lattice (T=0):**\n{initial_loss_lattice}")
-        print("\n----------------------------------------------------------------")
-        print(f"**Final Parameter Lattice (T={max_iters}):**\n{P_lattice}")
-        print("\n----------------------------------------------------------------")
-        print(f"**Final Loss Lattice (T={max_iters}):**\n{loss_lattice}")
-        print(f"\nFinal Best Loss (F_min): {F_min}")
-        print("----------------------------------------------------------------")
 
         return P_best, F_min
         
