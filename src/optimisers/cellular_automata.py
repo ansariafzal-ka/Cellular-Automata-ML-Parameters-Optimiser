@@ -143,7 +143,6 @@ class CellularAutomataOptimiser(Optimiser):
 
                         current_loss = loss_lattice[i, j]
                         if loss_candidate < current_loss:
-                            print("better loss found!")
                             P_new_lattice[i, j] = new_params
 
         return P_new_lattice
@@ -158,14 +157,14 @@ class CellularAutomataOptimiser(Optimiser):
         print("\nInitial Loss Lattice:")
         print(loss_lattice)
 
-        for exploit_iter in range(3):
+        for exploit_iter in range(10):
             P_lattice = self._exploit_params(model, loss_function, X, y, P_lattice, loss_lattice, F_min, F_max)
     
             # Re-evaluate fitness after each exploitation
             loss_lattice, F_min, F_max, P_best = self._evaluate_fitness(model, loss_function, X, y, P_lattice, loss_lattice)
     
             print(f"\nAfter Exploitation {exploit_iter + 1}:")
-            print(loss_lattice)
+            print(F_min)
 
 
         return P_best, F_min
