@@ -1,6 +1,7 @@
 from src.models.linear_models import LinearRegression
 from src.loss_functions.regression_losses import MeanSquaredError, MeanAbsoluteError
 from src.optimisers.gradient_based import BatchGradientDescent, StochasticGradientDescent, MiniBatchGradientDescent
+from src.optimisers.cellular_automata import CellularAutomataOptimiser
 from src.utils import configurations
 
 import pandas as pd
@@ -37,6 +38,7 @@ mae = MeanAbsoluteError()
 batch_gradient_descent = BatchGradientDescent(configurations.ALPHA)
 stochastic_gradient_descent = StochasticGradientDescent(configurations.ALPHA)
 mini_batch_gradient_descent = MiniBatchGradientDescent(configurations.ALPHA)
+ca_optimiser = CellularAutomataOptimiser(L=5, mu=0.01, omega=0.8)
 
 ## BATCH GRADIENT DESCENT (BGD)
 bgd_results = batch_gradient_descent.optimise(model, mse, X_train, y_train, max_iters=configurations.MAX_ITERS)
@@ -107,6 +109,31 @@ test_r2_results.append(test_r2_mbgd)
 
 params.append(mini_bgd_results["parameters"])
 
+
+## CELLULAR AUTOMATA
+ca_results = ca_optimiser.optimise(model, mse, X_train, y_train, max_iters=configurations.MAX_ITERS)
+model.set_params(ca_results['parameters'])
+
+y_train_pred_ca = model.predict(X_train)
+y_test_pred_ca = model.predict(X_test)
+
+train_mse_ca = mse.compute_loss(y_train, y_train_pred_ca)
+test_mse_ca = mse.compute_loss(y_test, y_test_pred_ca)
+train_mae_ca = mae.compute_loss(y_train, y_train_pred_ca)
+test_mae_ca = mae.compute_loss(y_test, y_test_pred_ca)
+train_r2_ca = r2_score(y_train, y_train_pred_ca)
+test_r2_ca = r2_score(y_test, y_test_pred_ca)
+
+train_mse_results.append(train_mse_ca)
+test_mse_results.append(test_mse_ca)
+train_mae_results.append(train_mae_ca)
+test_mae_results.append(test_mae_ca)
+train_r2_results.append(train_r2_ca)
+test_r2_results.append(test_r2_ca)
+
+params.append(ca_results["parameters"])
+
+
 ## SKLEARN SIMPLE LINEAR REGRESSION
 sk_model = SK_LinearRegression()
 sk_model.fit(X_train, y_train)
@@ -135,7 +162,7 @@ print("="*50)
 print("             OPTIMIZATION ALGORITHMS RESULTS")
 print("="*50)
 
-optimizers = ["Batch Gradient Descent", "Stochastic Gradient Descent", "Mini-Batch Gradient Descent", "Sklearn LinearRegression"]
+optimizers = ["Batch Gradient Descent", "Stochastic Gradient Descent", "Mini-Batch Gradient Descent", "Cellular Automata", "Sklearn LinearRegression"]
 
 for i, optimizer in enumerate(optimizers):
     print(f"--- {optimizer} ---")
@@ -148,21 +175,21 @@ for i, optimizer in enumerate(optimizers):
     print(f"  Testing r2 score: {test_r2_results[i]:.4f}")
     print()
 
-fig, ax = plt.subplots(1, 2, figsize=(14, 6))
+# fig, ax = plt.subplots(1, 2, figsize=(14, 6))
 
-ax[0].scatter(X_train, y_train, label='Actual Data')
-ax[0].plot(X_train, y_train_pred_bgd, color='red', label='Regression Line')
-ax[0].set_title("mbgd - Training Data")
-ax[0].set_xlabel("X_train")
-ax[0].set_ylabel("y_train")
-ax[0].legend()
+# ax[0].scatter(X_train, y_train, label='Actual Data')
+# ax[0].plot(X_train, y_train_pred_bgd, color='red', label='Regression Line')
+# ax[0].set_title("mbgd - Training Data")
+# ax[0].set_xlabel("X_train")
+# ax[0].set_ylabel("y_train")
+# ax[0].legend()
 
-ax[1].scatter(X_test, y_test, label='Actual Data')
-ax[1].plot(X_test, y_test_pred_mbgd, color='red', label='Regression Line')
-ax[1].set_title("mbgd - Testing Data")
-ax[1].set_xlabel("X_test")
-ax[1].set_ylabel("y_test")
-ax[1].legend()
+# ax[1].scatter(X_test, y_test, label='Actual Data')
+# ax[1].plot(X_test, y_test_pred_mbgd, color='red', label='Regression Line')
+# ax[1].set_title("mbgd - Testing Data")
+# ax[1].set_xlabel("X_test")
+# ax[1].set_ylabel("y_test")
+# ax[1].legend()
 
-plt.tight_layout()
-plt.show()
+# plt.tight_layout()
+# plt.show()

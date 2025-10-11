@@ -56,37 +56,6 @@ class CellularAutomataOptimiser(Optimiser):
 
         return is_good_cell, normalised_relative_fitness
     
-    def _get_best_neighbour_params(self, i, j, P_lattice, loss_lattice):
-        i_start = max(0, i - 1)
-        i_end = min(self.L, i + 2)
-        j_start = max(0, j - 1)
-        j_end = min(self.L, j + 2)
-
-        """
-        -> below gives the 3 x 3 neighbourhood loss of a cell eg :-
-                    [[9.4, 1.8, 7.2],
-                    [6.1, 0.9, 5.4], 
-                    [3.2, 4.8, 8.9]]
-        """
-        neighbour_losses = loss_lattice[i_start:i_end, j_start:j_end]
-
-        """
-        -> below gives the 3 x 3 neighbourhood param vectors of a cell eg:-
-                [
-                    [[param1, param2], [param1, param2], [param1, param2]],   row1 neighbors
-                    [[param1, param2], [param1, param2], [param1, param2]],   row2 neighbors  
-                    [[param1, param2], [param1, param2], [param1, param2]]    row3 neighbors
-                ]
-        """
-        neighbour_P = P_lattice[i_start:i_end, j_start:j_end]
-
-        relative_min_flat_idx = np.argmin(neighbour_losses)
-        relative_min_idx = np.unravel_index(relative_min_flat_idx, neighbour_losses.shape)
-
-        P_n = neighbour_P[relative_min_idx]
-
-        return P_n
-    
     def _tolerance(self, model):
          bounds = model.get_param_bounds()
          a, b = bounds[0]
@@ -146,26 +115,92 @@ class CellularAutomataOptimiser(Optimiser):
                             P_new_lattice[i, j] = new_params
 
         return P_new_lattice
-                        
+    
+
+    def _explore_params(self, model, P_lattice, loss_lattice, F_min, F_max, iterations):
+        is_good, _ = self._classify_cells(loss_lattice, F_min, F_max)
+        P_new_lattice = P_lattice.copy()
+        bounds = model.get_param_bounds()
+
+        for i in range(self.L):
+            for j in range(self.L):
+                i_start = max(0, i - 1)
+                i_end = min(self.L, i + 2)
+                j_start = max(0, j - 1)
+                j_end = min(self.L, j + 2)
+
+                center_params = P_lattice[i, j]
+                new_param = center_params.copy()
+
+                for param_idx in range(len(center_params)):
+                    neighbour_vals = []
+                    for row in range(i_start, i_end):
+                        for col in range(j_start, j_end):
+                            if row == i and col == j:
+                                continue
+                            neighbour_vals.append(P_lattice[row, col, param_idx])
+
+                    k = len(neighbour_vals)
+
+                    if not is_good[i, j]:
+                        if k > 1:
+                            center_val = center_params[param_idx]
+                            squared_diffs = sum((center_val - val)**2 for val in neighbour_vals)
+                            std_dev = np.sqrt(squared_diffs / (k-1))
+
+                            param_range = bounds[param_idx][1] - bounds[param_idx][0]
+                            max_perturbation = 0.1 * param_range
+                            std_dev = min(std_dev, max_perturbation)
+
+                            random_sign = 1 if np.random.random() > 0.5 else -1
+                            new_param[param_idx] += random_sign * std_dev
+                    else:
+                        s = np.random.uniform(0, 0.01)
+                        random_sign = 1 if np.random.random() > 0.5 else -1
+                        new_param[param_idx] += random_sign * s
+
+                    p_min, p_max = bounds[param_idx]
+                    new_param[param_idx] = np.clip(new_param[param_idx], p_min, p_max)
+                    
+                P_new_lattice[i, j] = new_param
+
+        return P_new_lattice
+
 
     def optimise(self, model, loss_function, X, y, max_iters=1000):
 
         P_lattice, loss_lattice = self._initialise_lattice(model)
         loss_lattice, F_min, F_max, P_best = self._evaluate_fitness(model, loss_function, X, y, P_lattice, loss_lattice)
 
+        print("=" * 50)
+        print("CELLULAR AUTOMATA OPTIMIZATION START")
+        print("=" * 50)
+        print(f"Configuration: L={self.L}, μ={self.mu}, ω={self.omega}, max_iters={max_iters}")
+        print(f"Initial Best Loss: {F_min:.6f}")
+        
+        for iteration in range(max_iters):
+            # Exploitation phase (3 iterations)
+            for exploit_iter in range(3):
+                P_lattice = self._exploit_params(model, loss_function, X, y, P_lattice, loss_lattice, F_min, F_max)
+                loss_lattice, F_min, F_max, P_best = self._evaluate_fitness(model, loss_function, X, y, P_lattice, loss_lattice)
 
-        print("\nInitial Loss Lattice:")
-        print(loss_lattice)
-
-        for exploit_iter in range(10):
-            P_lattice = self._exploit_params(model, loss_function, X, y, P_lattice, loss_lattice, F_min, F_max)
-    
-            # Re-evaluate fitness after each exploitation
+            # Exploration phase
+            P_lattice = self._explore_params(model, P_lattice, loss_lattice, F_min, F_max, iteration)
             loss_lattice, F_min, F_max, P_best = self._evaluate_fitness(model, loss_function, X, y, P_lattice, loss_lattice)
-    
-            print(f"\nAfter Exploitation {exploit_iter + 1}:")
-            print(F_min)
+            
+            # Print progress every 100 iterations
+            if (iteration + 1) % 100 == 0:
+                # print(f"Iteration {iteration + 1:4d} | Best Loss: {F_min:.6f}")
+                num_good = np.sum(self._classify_cells(loss_lattice, F_min, F_max)[0])
+                print(f"Iteration {iteration + 1:4d} | Best Loss: {F_min:.6f} | Good Cells: {num_good}/{self.L*self.L}")
 
-
+        print("=" * 50)
+        print("OPTIMIZATION COMPLETE")
+        print("=" * 50)
+        print(f"Final Best Loss: {F_min:.6f}")
+        print(f"Best Parameters: {P_best}")
+        print("=" * 50)
+        
         return P_best, F_min
+        # return {"algorithm": "CellularAutomata","parameters": P_best, "best_loss": F_min}
         
