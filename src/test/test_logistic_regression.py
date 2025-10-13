@@ -1,6 +1,7 @@
 from src.models.linear_models import LogisticRegression
 from src.loss_functions.classification_losses import BinaryCrossEntropy
 from src.optimisers.gradient_based import BatchGradientDescent, StochasticGradientDescent, MiniBatchGradientDescent
+from src.optimisers.cellular_automata import CellularAutomataOptimiser
 from src.utils import configurations
 
 import pandas as pd

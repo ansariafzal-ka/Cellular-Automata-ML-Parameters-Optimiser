@@ -1,6 +1,7 @@
 from src.models.linear_models import LinearRegression
 from src.loss_functions.regression_losses import MeanSquaredError, MeanAbsoluteError
 from src.optimisers.gradient_based import BatchGradientDescent, StochasticGradientDescent, MiniBatchGradientDescent
+from src.optimisers.cellular_automata import CellularAutomataOptimiser
 from src.utils import configurations
 
 import pandas as pd
@@ -16,7 +17,7 @@ test_mae_results = []
 train_r2_results = []
 test_r2_results = []
 
-df = pd.read_csv("src/datasets/diabetes.csv")
+df = pd.read_csv("src/datasets/california_housing.csv")
 
 X = df.drop("target", axis=1)
 y = df["target"]
@@ -37,69 +38,92 @@ mae = MeanAbsoluteError()
 batch_gradient_descent = BatchGradientDescent(configurations.ALPHA)
 stochastic_gradient_descent = StochasticGradientDescent(configurations.ALPHA)
 mini_batch_gradient_descent = MiniBatchGradientDescent(configurations.ALPHA, batch_size=16)
+ca_optimiser = CellularAutomataOptimiser(L=5, mu=0.01, omega=0.8)
 
-## BATCH GRADIENT DESCENT (BGD)
-bgd_results = batch_gradient_descent.optimise(model, mse, X_train, y_train, max_iters=configurations.MAX_ITERS)
-model.set_params(bgd_results["parameters"])
 
-y_train_pred_bgd = model.predict(X_train)
-y_test_pred_bgd = model.predict(X_test)
+# ## BATCH GRADIENT DESCENT (BGD)
+# bgd_results = batch_gradient_descent.optimise(model, mse, X_train, y_train, max_iters=configurations.MAX_ITERS)
+# model.set_params(bgd_results["parameters"])
 
-train_mse_bgd = mse.compute_loss(y_train, y_train_pred_bgd)
-test_mse_bgd = mse.compute_loss(y_test, y_test_pred_bgd)
-train_mae_bgd = mae.compute_loss(y_train, y_train_pred_bgd)
-test_mae_bgd = mae.compute_loss(y_test, y_test_pred_bgd)
-train_r2_bgd = r2_score(y_train, y_train_pred_bgd)
-test_r2_bgd = r2_score(y_test, y_test_pred_bgd)
+# y_train_pred_bgd = model.predict(X_train)
+# y_test_pred_bgd = model.predict(X_test)
 
-train_mse_results.append(train_mse_bgd)
-test_mse_results.append(test_mse_bgd)
-train_mae_results.append(train_mae_bgd)
-test_mae_results.append(test_mae_bgd)
-train_r2_results.append(train_r2_bgd)
-test_r2_results.append(test_r2_bgd)
+# train_mse_bgd = mse.compute_loss(y_train, y_train_pred_bgd)
+# test_mse_bgd = mse.compute_loss(y_test, y_test_pred_bgd)
+# train_mae_bgd = mae.compute_loss(y_train, y_train_pred_bgd)
+# test_mae_bgd = mae.compute_loss(y_test, y_test_pred_bgd)
+# train_r2_bgd = r2_score(y_train, y_train_pred_bgd)
+# test_r2_bgd = r2_score(y_test, y_test_pred_bgd)
 
-## STOCHASTIC GRADIENT DESCENT (SGD)
-sgd_results = stochastic_gradient_descent.optimise(model, mse, X_train, y_train, max_iters=configurations.MAX_ITERS)
-model.set_params(sgd_results["parameters"])
+# train_mse_results.append(train_mse_bgd)
+# test_mse_results.append(test_mse_bgd)
+# train_mae_results.append(train_mae_bgd)
+# test_mae_results.append(test_mae_bgd)
+# train_r2_results.append(train_r2_bgd)
+# test_r2_results.append(test_r2_bgd)
 
-y_train_pred_sgd = model.predict(X_train)
-y_test_pred_sgd = model.predict(X_test)
+# ## STOCHASTIC GRADIENT DESCENT (SGD)
+# sgd_results = stochastic_gradient_descent.optimise(model, mse, X_train, y_train, max_iters=configurations.MAX_ITERS)
+# model.set_params(sgd_results["parameters"])
 
-train_mse_sgd = mse.compute_loss(y_train, y_train_pred_sgd)
-test_mse_sgd = mse.compute_loss(y_test, y_test_pred_sgd)
-train_mae_sgd = mae.compute_loss(y_train, y_train_pred_sgd)
-test_mae_sgd = mae.compute_loss(y_test, y_test_pred_sgd)
-train_r2_sgd = r2_score(y_train, y_train_pred_sgd)
-test_r2_sgd = r2_score(y_test, y_test_pred_sgd)
+# y_train_pred_sgd = model.predict(X_train)
+# y_test_pred_sgd = model.predict(X_test)
 
-train_mse_results.append(train_mse_sgd)
-test_mse_results.append(test_mse_sgd)
-train_mae_results.append(train_mae_sgd)
-test_mae_results.append(test_mae_sgd)
-train_r2_results.append(train_r2_sgd)
-test_r2_results.append(test_r2_sgd)
+# train_mse_sgd = mse.compute_loss(y_train, y_train_pred_sgd)
+# test_mse_sgd = mse.compute_loss(y_test, y_test_pred_sgd)
+# train_mae_sgd = mae.compute_loss(y_train, y_train_pred_sgd)
+# test_mae_sgd = mae.compute_loss(y_test, y_test_pred_sgd)
+# train_r2_sgd = r2_score(y_train, y_train_pred_sgd)
+# test_r2_sgd = r2_score(y_test, y_test_pred_sgd)
 
-## MINI-BATCH GRADIENT DESCENT (MBGD)
-mini_bgd_results = mini_batch_gradient_descent.optimise(model, mse, X_train, y_train, max_iters=configurations.MAX_ITERS)
-model.set_params(mini_bgd_results["parameters"])
+# train_mse_results.append(train_mse_sgd)
+# test_mse_results.append(test_mse_sgd)
+# train_mae_results.append(train_mae_sgd)
+# test_mae_results.append(test_mae_sgd)
+# train_r2_results.append(train_r2_sgd)
+# test_r2_results.append(test_r2_sgd)
 
-y_train_pred_mbgd = model.predict(X_train)
-y_test_pred_mbgd = model.predict(X_test)
+# ## MINI-BATCH GRADIENT DESCENT (MBGD)
+# mini_bgd_results = mini_batch_gradient_descent.optimise(model, mse, X_train, y_train, max_iters=configurations.MAX_ITERS)
+# model.set_params(mini_bgd_results["parameters"])
 
-train_mse_mbgd = mse.compute_loss(y_train, y_train_pred_mbgd)
-test_mse_mbgd = mse.compute_loss(y_test, y_test_pred_mbgd)
-train_mae_mbgd = mae.compute_loss(y_train, y_train_pred_mbgd)
-test_mae_mbgd = mae.compute_loss(y_test, y_test_pred_mbgd)
-train_r2_mbgd = r2_score(y_train, y_train_pred_mbgd)
-test_r2_mbgd = r2_score(y_test, y_test_pred_mbgd)
+# y_train_pred_mbgd = model.predict(X_train)
+# y_test_pred_mbgd = model.predict(X_test)
 
-train_mse_results.append(train_mse_mbgd)
-test_mse_results.append(test_mse_mbgd)
-train_mae_results.append(train_mae_mbgd)
-test_mae_results.append(test_mae_mbgd)
-train_r2_results.append(train_r2_mbgd)
-test_r2_results.append(test_r2_mbgd)
+# train_mse_mbgd = mse.compute_loss(y_train, y_train_pred_mbgd)
+# test_mse_mbgd = mse.compute_loss(y_test, y_test_pred_mbgd)
+# train_mae_mbgd = mae.compute_loss(y_train, y_train_pred_mbgd)
+# test_mae_mbgd = mae.compute_loss(y_test, y_test_pred_mbgd)
+# train_r2_mbgd = r2_score(y_train, y_train_pred_mbgd)
+# test_r2_mbgd = r2_score(y_test, y_test_pred_mbgd)
+
+# train_mse_results.append(train_mse_mbgd)
+# test_mse_results.append(test_mse_mbgd)
+# train_mae_results.append(train_mae_mbgd)
+# test_mae_results.append(test_mae_mbgd)
+# train_r2_results.append(train_r2_mbgd)
+# test_r2_results.append(test_r2_mbgd)
+
+## CELLULAR AUTOMATA
+ca_results = ca_optimiser.optimise(model, mse, X_train, y_train, max_iters=configurations.MAX_ITERS)
+model.set_params(ca_results['parameters'])
+
+y_train_pred_ca = model.predict(X_train)
+y_test_pred_ca = model.predict(X_test)
+
+train_mse_ca = mse.compute_loss(y_train, y_train_pred_ca)
+test_mse_ca = mse.compute_loss(y_test, y_test_pred_ca)
+train_mae_ca = mae.compute_loss(y_train, y_train_pred_ca)
+test_mae_ca = mae.compute_loss(y_test, y_test_pred_ca)
+train_r2_ca = r2_score(y_train, y_train_pred_ca)
+test_r2_ca = r2_score(y_test, y_test_pred_ca)
+
+train_mse_results.append(train_mse_ca)
+test_mse_results.append(test_mse_ca)
+train_mae_results.append(train_mae_ca)
+test_mae_results.append(test_mae_ca)
+train_r2_results.append(train_r2_ca)
+test_r2_results.append(test_r2_ca)
 
 ## SKLEARN LINEAR REGRESSION
 sk_model = SK_LinearRegression()
@@ -127,7 +151,7 @@ print("="*50)
 print("             OPTIMIZATION ALGORITHMS RESULTS")
 print("="*50)
 
-optimizers = ["Batch Gradient Descent", "Stochastic Gradient Descent", "Mini-Batch Gradient Descent", "Sklearn LinearRegression"]
+optimizers = ["Batch Gradient Descent", "Stochastic Gradient Descent", "Mini-Batch Gradient Descent", "Cellular Automata", "Sklearn LinearRegression"]
 
 for i, optimizer in enumerate(optimizers):
     print(f"--- {optimizer} ---")

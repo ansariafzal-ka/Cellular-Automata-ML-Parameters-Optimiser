@@ -25,7 +25,7 @@ y_train = y_train.to_numpy()
 y_test = y_test.to_numpy()
 
 model = SoftmaxRegression(n_features=n_features, n_classes=3)
-bce = CategoricalCrossEntropy()
+cce = CategoricalCrossEntropy()
 
 batch_gradient_descent = BatchGradientDescent(configurations.ALPHA)
 stochastic_gradient_descent = StochasticGradientDescent(configurations.ALPHA)
@@ -33,7 +33,7 @@ mini_batch_gradient_descent = MiniBatchGradientDescent(configurations.ALPHA)
 
 ## BATCH GRADIENT DESCENT (BGD)
 print("--- Training with Batch Gradient Descent ---")
-bgd_results = batch_gradient_descent.optimise(model, bce, X_train, y_train, max_iters=configurations.MAX_ITERS)
+bgd_results = batch_gradient_descent.optimise(model, cce, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(bgd_results["parameters"])
 
 y_test_pred_bgd = model.predict(X_test)
@@ -43,7 +43,7 @@ print(report_bgd)
 
 ## STOCHASTIC GRADIENT DESCENT (SGD)
 print("--- Training with Stochastic Gradient Descent ---")
-sgd_results = stochastic_gradient_descent.optimise(model, bce, X_train, y_train, max_iters=configurations.MAX_ITERS)
+sgd_results = stochastic_gradient_descent.optimise(model, cce, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(sgd_results["parameters"])
 
 y_test_pred_sgd = model.predict(X_test)
@@ -53,7 +53,7 @@ print(report_sgd)
 
 ## MINI-BATCH GRADIENT DESCENT (MBGD)
 print("--- Training with Mini-Batch Gradient Descent ---")
-mini_bgd_results = mini_batch_gradient_descent.optimise(model, bce, X_train, y_train, max_iters=configurations.MAX_ITERS)
+mini_bgd_results = mini_batch_gradient_descent.optimise(model, cce, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(mini_bgd_results["parameters"])
 
 y_test_pred_mbgd = model.predict(X_test)

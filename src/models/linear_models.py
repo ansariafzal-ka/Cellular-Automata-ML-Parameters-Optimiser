@@ -24,7 +24,7 @@ class LinearRegression(Model):
 
     def get_param_bounds(self):
         num_params = self.get_param_count()
-        return [(-100.0, 100.0)] * num_params # if there are 3 params then the result will be [(-5.0, 5.0), (-5.0, 5.0), (-5.0, 5.0)]
+        return [(-1000.0, 1000.0)] * num_params # if there are 3 params then the result will be [(-5.0, 5.0), (-5.0, 5.0), (-5.0, 5.0)]
 
 
 class LogisticRegression(Model):
@@ -41,9 +41,9 @@ class LogisticRegression(Model):
     def predict(self, X):
         linear_model = X @ self.weights + self.bias
         y_predicted = self._sigmoid(linear_model)
-        y_predicted_classes = (y_predicted > self.threshold).astype(int)
+        # y_predicted_classes = (y_predicted > self.threshold).astype(int)
 
-        return y_predicted_classes
+        return y_predicted
 
     def get_params(self):
         return np.concatenate([self.weights, [self.bias]])

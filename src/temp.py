@@ -1,45 +1,52 @@
 # test_ca_optimiser.py
 import numpy as np
-from optimisers.cellular_automata import CellularAutomataOptimiser
-from models.linear_models import LinearRegression  # Replace with your actual model class
-from sklearn.linear_model import LinearRegression as SKLinearRegression
-from sklearn.metrics import mean_squared_error
-from loss_functions.regression_losses import MeanSquaredError, MeanAbsoluteError
-import matplotlib.pyplot as plt
 import pandas as pd
+from sklearn.linear_model import LogisticRegression as SKLogistic
+from sklearn.metrics import classification_report
 
-df = pd.read_csv('datasets/simple_linear_regression_data.csv')
+from optimisers.cellular_automata import CellularAutomataOptimiser
+from models.linear_models import LogisticRegression
+from loss_functions.classification_losses import BinaryCrossEntropy
+
+# Load data
+df = pd.read_csv('datasets/breast_cancer.csv')
 X = df.drop("target", axis=1)
 y = df["target"]
 
-# np.random.seed(42)
-
-# X = np.random.rand(100, 1) * 10
-# slope = 2.5
-# bias = 1.0
-# y = slope * X + bias
-
 # Initialize optimiser and model
 optimiser = CellularAutomataOptimiser(L=5, mu=0.01, omega=0.8)
-model = LinearRegression(n_features=1)
-mse = MeanSquaredError()
-mae = MeanAbsoluteError()
+logistic_model = LogisticRegression(n_features=X.shape[1])
+bce = BinaryCrossEntropy()
 
-sk_model = SKLinearRegression()
+# Sklearn logistic regression for comparison
+sk_model = SKLogistic()
 sk_model.fit(X, y)
-sk_pred = sk_model.predict(X)
+y_pred_sk = sk_model.predict(X)
 
-print(f"SK model loss: {mean_squared_error(y, sk_pred)}")
-# print(f"SK model loss: {mse.compute_loss(y, sk_pred)}")
+print("=" * 50)
+print("SKLEARN LOGISTIC REGRESSION")
+print("=" * 50)
+print(classification_report(y, y_pred_sk))
 
-best_params, best_loss = optimiser.optimise(model, mse, X, y, max_iters=1000)
-model.set_params(best_params)
-y_pred_ca = model.predict(X)
+# Print sklearn parameters
+print("\nSklearn Parameters:")
+print(f"Coefficients: {sk_model.coef_[0]}")
+print(f"Intercept: {sk_model.intercept_[0]}")
 
+# Cellular Automata optimization
+best_params, best_loss = optimiser.optimise(logistic_model, bce, X, y, max_iters=10)
+logistic_model.set_params(best_params)
 
-# plot the line
-# plt.scatter(X, y)
-# plt.plot(X, y_pred_ca, color='red', label='ca line')
-# plt.plot(X, sk_pred, color='green', label='sk line')
-# plt.legend()
-# plt.show()
+# Get probabilities and convert to predictions
+y_probs_ca = logistic_model.predict(X)
+y_pred_ca = (y_probs_ca > 0.5).astype(int)
+
+print("\n" + "=" * 50)
+print("CELLULAR AUTOMATA LOGISTIC REGRESSION")
+print("=" * 50)
+print(classification_report(y, y_pred_ca))
+
+# Print CA parameters
+print(f"\nCellular Automata Parameters:")
+print(f"Best Loss: {best_loss:.6f}")
+print(f"Parameters: {best_params}")

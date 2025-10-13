@@ -18,7 +18,6 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 # Create model
 model = SoftmaxRegression(n_features=5, n_classes=5)
 
-
 # Use categorical cross-entropy
 loss_fn = CategoricalCrossEntropy()
 

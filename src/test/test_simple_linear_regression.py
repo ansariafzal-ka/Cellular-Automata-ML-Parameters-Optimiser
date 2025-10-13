@@ -174,22 +174,3 @@ for i, optimizer in enumerate(optimizers):
     print(f"  Training r2 score: {train_r2_results[i]:.4f}")
     print(f"  Testing r2 score: {test_r2_results[i]:.4f}")
     print()
-
-# fig, ax = plt.subplots(1, 2, figsize=(14, 6))
-
-# ax[0].scatter(X_train, y_train, label='Actual Data')
-# ax[0].plot(X_train, y_train_pred_bgd, color='red', label='Regression Line')
-# ax[0].set_title("mbgd - Training Data")
-# ax[0].set_xlabel("X_train")
-# ax[0].set_ylabel("y_train")
-# ax[0].legend()
-
-# ax[1].scatter(X_test, y_test, label='Actual Data')
-# ax[1].plot(X_test, y_test_pred_mbgd, color='red', label='Regression Line')
-# ax[1].set_title("mbgd - Testing Data")
-# ax[1].set_xlabel("X_test")
-# ax[1].set_ylabel("y_test")
-# ax[1].legend()
-
-# plt.tight_layout()
-# plt.show()

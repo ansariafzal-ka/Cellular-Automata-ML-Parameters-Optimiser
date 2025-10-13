@@ -62,62 +62,63 @@ class CellularAutomataOptimiser(Optimiser):
          return self.omega * (b - a)
     
     def _exploit_params(self, model, loss_function, X, y, P_lattice, loss_lattice, F_min, F_max):
-         # classify cells as good or bad
         is_good, _ = self._classify_cells(loss_lattice, F_min, F_max)
         P_new_lattice = P_lattice.copy()
         tolerance_width = self._tolerance(model)
 
-        # loop through the entire lattice
         for i in range(self.L):
             for j in range(self.L):
-                # check if a cell is good, and start finding its moore neighbourhood
                 if is_good[i, j]:
                     i_start = max(0, i - 1)
                     i_end = min(self.L, i + 2)
                     j_start = max(0, j - 1)
                     j_end = min(self.L, j + 2)
 
-                    # find the good parameters in that moore neighbourhood
-                    good_neighbour_params = []
-                    for row in range(i_start, i_end):
-                        for col in range(j_start, j_end):
-                            if row == i and col == j:
-                                continue
-                            if is_good[row, col]:
-                                good_neighbour_params.append(P_lattice[row, col])   
+                    center_params = P_lattice[i, j].copy()
+                    new_params = center_params.copy()
+                    current_loss = loss_lattice[i, j]
 
-                    center_params = P_lattice[i, j]
-                    tolerated_neighbours = []
+                    # Process EACH parameter independently
+                    for param_idx in range(len(center_params)):
+                        # Collect good neighbor values for THIS parameter only
+                        good_neighbor_vals = []
+                        for row in range(i_start, i_end):
+                            for col in range(j_start, j_end):
+                                if row == i and col == j:
+                                    continue
+                                if is_good[row, col]:
+                                    neighbor_val = P_lattice[row, col, param_idx]
+                                    # Check tolerance for this parameter
+                                    lower = center_params[param_idx] - tolerance_width
+                                    upper = center_params[param_idx] + tolerance_width
+                                    if lower < neighbor_val < upper:
+                                        good_neighbor_vals.append(neighbor_val)
 
-                    for neighbour_params in good_neighbour_params:
-                        all_within_tolerance = True
-                        for param_idx in range(len(center_params)):
-                            lower = center_params[param_idx] - tolerance_width
-                            upper = center_params[param_idx] + tolerance_width
+                        # Average this parameter with good neighbors
+                        if good_neighbor_vals:
+                            all_vals = [new_params[param_idx]] + good_neighbor_vals
+                            candidate_val = np.mean(all_vals)
+                            
+                            # Create candidate with just this parameter changed
+                            candidate_params = new_params.copy()
+                            candidate_params[param_idx] = candidate_val
 
-                            if not (lower < neighbour_params[param_idx] < upper):
-                                all_within_tolerance = False
-                                break
+                            # Evaluate
+                            model.set_params(candidate_params)
+                            y_pred = model.predict(X)
+                            candidate_loss = loss_function.compute_loss(y, y_pred)
 
-                        if all_within_tolerance:
-                            tolerated_neighbours.append(neighbour_params)
+                            # Only accept if better
+                            if candidate_loss < current_loss:
+                                new_params[param_idx] = candidate_val
+                                current_loss = candidate_loss
 
-                    if tolerated_neighbours:
-                        all_params_to_average = [center_params] + tolerated_neighbours
-                        new_params = np.mean(all_params_to_average, axis=0)
-
-                        model.set_params(new_params)
-                        y_pred = model.predict(X)
-                        loss_candidate = loss_function.compute_loss(y, y_pred)
-
-                        current_loss = loss_lattice[i, j]
-                        if loss_candidate < current_loss:
-                            P_new_lattice[i, j] = new_params
+                    P_new_lattice[i, j] = new_params
 
         return P_new_lattice
     
 
-    def _explore_params(self, model, P_lattice, loss_lattice, F_min, F_max, iterations):
+    def _explore_params(self, model, loss_function, X, y, P_lattice, loss_lattice, F_min, F_max):
         is_good, _ = self._classify_cells(loss_lattice, F_min, F_max)
         P_new_lattice = P_lattice.copy()
         bounds = model.get_param_bounds()
@@ -130,8 +131,10 @@ class CellularAutomataOptimiser(Optimiser):
                 j_end = min(self.L, j + 2)
 
                 center_params = P_lattice[i, j]
-                new_param = center_params.copy()
+                new_params = center_params.copy()
+                current_loss = loss_lattice[i, j]
 
+                # Process each parameter independently
                 for param_idx in range(len(center_params)):
                     neighbour_vals = []
                     for row in range(i_start, i_end):
@@ -141,30 +144,59 @@ class CellularAutomataOptimiser(Optimiser):
                             neighbour_vals.append(P_lattice[row, col, param_idx])
 
                     k = len(neighbour_vals)
+                    candidate_params = new_params.copy()
 
-                    if not is_good[i, j]:
-                        if k > 1:
-                            center_val = center_params[param_idx]
+                    if not is_good[i, j]:  # BAD CELL
+                        if k > 0:
+                            center_val = new_params[param_idx]
                             squared_diffs = sum((center_val - val)**2 for val in neighbour_vals)
-                            std_dev = np.sqrt(squared_diffs / (k-1))
+                            std_dev = np.sqrt(squared_diffs / k)
 
                             param_range = bounds[param_idx][1] - bounds[param_idx][0]
                             max_perturbation = 0.1 * param_range
                             std_dev = min(std_dev, max_perturbation)
 
                             random_sign = 1 if np.random.random() > 0.5 else -1
-                            new_param[param_idx] += random_sign * std_dev
-                    else:
-                        s = np.random.uniform(0, 0.01)
+                            candidate_params[param_idx] += random_sign * std_dev
+                    else:  # GOOD CELL
+                        s = np.random.uniform(0.01, 0.1)
                         random_sign = 1 if np.random.random() > 0.5 else -1
-                        new_param[param_idx] += random_sign * s
+                        candidate_params[param_idx] += random_sign * s
 
+                    # Clip to bounds
                     p_min, p_max = bounds[param_idx]
-                    new_param[param_idx] = np.clip(new_param[param_idx], p_min, p_max)
-                    
-                P_new_lattice[i, j] = new_param
+                    candidate_params[param_idx] = np.clip(candidate_params[param_idx], p_min, p_max)
 
-        return P_new_lattice
+                    # Evaluate and only accept if better
+                    model.set_params(candidate_params)
+                    y_pred = model.predict(X)
+                    candidate_loss = loss_function.compute_loss(y, y_pred)
+
+                    if candidate_loss < current_loss:
+                        new_params = candidate_params.copy()
+                        current_loss = candidate_loss
+                    
+                P_new_lattice[i, j] = new_params
+
+        return P_new_lattice 
+
+
+    # def optimise(self, model, loss_function, X, y, max_iters=1000):
+
+    #     P_lattice, loss_lattice = self._initialise_lattice(model)
+    #     loss_lattice, F_min, F_max, P_best = self._evaluate_fitness(model, loss_function, X, y, P_lattice, loss_lattice)
+        
+    #     for iteration in range(max_iters):
+    #         # Exploitation phase (3 iterations)
+    #         for exploit_iter in range(3):
+    #             P_lattice = self._exploit_params(model, loss_function, X, y, P_lattice, loss_lattice, F_min, F_max)
+    #             loss_lattice, F_min, F_max, P_best = self._evaluate_fitness(model, loss_function, X, y, P_lattice, loss_lattice)
+
+    #         # Exploration phase
+    #         P_lattice = self._explore_params(model, loss_function, X, y, P_lattice, loss_lattice, F_min, F_max)
+    #         loss_lattice, F_min, F_max, P_best = self._evaluate_fitness(model, loss_function, X, y, P_lattice, loss_lattice)
+            
+    #     return {"algorithm": "CellularAutomata","parameters": P_best, "best_loss": F_min}
 
 
     def optimise(self, model, loss_function, X, y, max_iters=1000):
@@ -185,12 +217,15 @@ class CellularAutomataOptimiser(Optimiser):
                 loss_lattice, F_min, F_max, P_best = self._evaluate_fitness(model, loss_function, X, y, P_lattice, loss_lattice)
 
             # Exploration phase
-            P_lattice = self._explore_params(model, P_lattice, loss_lattice, F_min, F_max, iteration)
+            P_lattice = self._explore_params(model, loss_function, X, y, P_lattice, loss_lattice, F_min, F_max)
             loss_lattice, F_min, F_max, P_best = self._evaluate_fitness(model, loss_function, X, y, P_lattice, loss_lattice)
             
             # Print progress every 100 iterations
             if (iteration + 1) % 100 == 0:
                 # print(f"Iteration {iteration + 1:4d} | Best Loss: {F_min:.6f}")
+                param_std = np.std(P_lattice, axis=(0,1))
+                print(f"Param std dev: {np.mean(param_std):.4f}")
+                print(f"Params at bounds: {np.sum(np.abs(P_lattice) >= 99)}")
                 num_good = np.sum(self._classify_cells(loss_lattice, F_min, F_max)[0])
                 print(f"Iteration {iteration + 1:4d} | Best Loss: {F_min:.6f} | Good Cells: {num_good}/{self.L*self.L}")
 
@@ -201,6 +236,4 @@ class CellularAutomataOptimiser(Optimiser):
         print(f"Best Parameters: {P_best}")
         print("=" * 50)
         
-        return P_best, F_min
-        # return {"algorithm": "CellularAutomata","parameters": P_best, "best_loss": F_min}
-        
+        return P_best, F_min        
