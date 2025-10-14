@@ -7,11 +7,15 @@ class Model(ABC):
         pass
 
     @abstractmethod
+    def set_params(self, params):
+        pass
+
+    @abstractmethod
     def get_params(self):
         pass
 
     @abstractmethod
-    def set_params(self, params):
+    def set_param_bounds(self, bounds):
         pass
 
     @abstractmethod

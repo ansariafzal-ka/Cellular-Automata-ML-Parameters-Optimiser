@@ -32,6 +32,8 @@ y_train = y_train.to_numpy()
 y_test = y_test.to_numpy()
 
 model = LinearRegression(n_features=n_features)
+model.set_param_bounds([(-1000.0, 1000.0)])
+
 mse = MeanSquaredError()
 mae = MeanAbsoluteError()
 
@@ -160,6 +162,8 @@ params.append([sk_model.coef_, sk_model.intercept_])
 
 print("="*50)
 print("             OPTIMIZATION ALGORITHMS RESULTS")
+print("="*50)
+print(f"Configuration: MAX_ITERS={configurations.MAX_ITERS}, TEST_SIZE={configurations.TEST_SIZE}, ALPHA={configurations.ALPHA}, SEED={configurations.SEED}")
 print("="*50)
 
 optimizers = ["Batch Gradient Descent", "Stochastic Gradient Descent", "Mini-Batch Gradient Descent", "Cellular Automata", "Sklearn LinearRegression"]

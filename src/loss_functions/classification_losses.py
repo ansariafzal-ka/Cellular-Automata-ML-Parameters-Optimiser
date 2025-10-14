@@ -33,17 +33,15 @@ class CategoricalCrossEntropy(LossFunction):
         return -np.mean(np.sum(y_true * np.log(y_prediction), axis=1))
     
     def compute_gradient(self, X, y_true, y_prediction):
-
         if y_true.ndim == 1:
             n_classes = y_prediction.shape[1]
             y_true = self._to_one_hot(y_true, n_classes)
 
         m = len(y_true)
-        loss = y_prediction - y_true
-        if len(X.shape) == 1:
-            X = X.reshape(-1, 1)
-        dw = (1/m) * X.T.dot(loss)
-        db = (1/m) * np.sum(loss, axis=0)
+        grad_logits = (y_prediction - y_true) / m  # derivative of cross-entropy wrt logits
+        dw = X.T @ grad_logits                     # (n_features, n_classes)
+        db = np.sum(grad_logits, axis=0)           # (n_classes, )
+
         return np.concatenate([dw.flatten(), db.flatten()])
     
 class HingeLoss(LossFunction):

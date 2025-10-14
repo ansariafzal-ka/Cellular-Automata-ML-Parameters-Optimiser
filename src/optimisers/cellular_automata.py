@@ -181,34 +181,15 @@ class CellularAutomataOptimiser(Optimiser):
         return P_new_lattice 
 
 
-    # def optimise(self, model, loss_function, X, y, max_iters=1000):
-
-    #     P_lattice, loss_lattice = self._initialise_lattice(model)
-    #     loss_lattice, F_min, F_max, P_best = self._evaluate_fitness(model, loss_function, X, y, P_lattice, loss_lattice)
-        
-    #     for iteration in range(max_iters):
-    #         # Exploitation phase (3 iterations)
-    #         for exploit_iter in range(3):
-    #             P_lattice = self._exploit_params(model, loss_function, X, y, P_lattice, loss_lattice, F_min, F_max)
-    #             loss_lattice, F_min, F_max, P_best = self._evaluate_fitness(model, loss_function, X, y, P_lattice, loss_lattice)
-
-    #         # Exploration phase
-    #         P_lattice = self._explore_params(model, loss_function, X, y, P_lattice, loss_lattice, F_min, F_max)
-    #         loss_lattice, F_min, F_max, P_best = self._evaluate_fitness(model, loss_function, X, y, P_lattice, loss_lattice)
-            
-    #     return {"algorithm": "CellularAutomata","parameters": P_best, "best_loss": F_min}
-
-
     def optimise(self, model, loss_function, X, y, max_iters=1000):
 
         P_lattice, loss_lattice = self._initialise_lattice(model)
         loss_lattice, F_min, F_max, P_best = self._evaluate_fitness(model, loss_function, X, y, P_lattice, loss_lattice)
-
-        print("=" * 50)
-        print("CELLULAR AUTOMATA OPTIMIZATION START")
-        print("=" * 50)
+        
+        print("\n")
+        print("="*50)
         print(f"Configuration: L={self.L}, μ={self.mu}, ω={self.omega}, max_iters={max_iters}")
-        print(f"Initial Best Loss: {F_min:.6f}")
+        print("="*50)
         
         for iteration in range(max_iters):
             # Exploitation phase (3 iterations)
@@ -220,20 +201,44 @@ class CellularAutomataOptimiser(Optimiser):
             P_lattice = self._explore_params(model, loss_function, X, y, P_lattice, loss_lattice, F_min, F_max)
             loss_lattice, F_min, F_max, P_best = self._evaluate_fitness(model, loss_function, X, y, P_lattice, loss_lattice)
             
-            # Print progress every 100 iterations
-            if (iteration + 1) % 100 == 0:
-                # print(f"Iteration {iteration + 1:4d} | Best Loss: {F_min:.6f}")
-                param_std = np.std(P_lattice, axis=(0,1))
-                print(f"Param std dev: {np.mean(param_std):.4f}")
-                print(f"Params at bounds: {np.sum(np.abs(P_lattice) >= 99)}")
-                num_good = np.sum(self._classify_cells(loss_lattice, F_min, F_max)[0])
-                print(f"Iteration {iteration + 1:4d} | Best Loss: {F_min:.6f} | Good Cells: {num_good}/{self.L*self.L}")
+        return {"algorithm": "CellularAutomata","parameters": P_best, "best_loss": F_min}
 
-        print("=" * 50)
-        print("OPTIMIZATION COMPLETE")
-        print("=" * 50)
-        print(f"Final Best Loss: {F_min:.6f}")
-        print(f"Best Parameters: {P_best}")
-        print("=" * 50)
+
+    # def optimise(self, model, loss_function, X, y, max_iters=1000):
+
+    #     P_lattice, loss_lattice = self._initialise_lattice(model)
+    #     loss_lattice, F_min, F_max, P_best = self._evaluate_fitness(model, loss_function, X, y, P_lattice, loss_lattice)
+
+    #     print("=" * 50)
+    #     print("CELLULAR AUTOMATA OPTIMIZATION START")
+    #     print("=" * 50)
+    #     print(f"Configuration: L={self.L}, μ={self.mu}, ω={self.omega}, max_iters={max_iters}")
+    #     print(f"Initial Best Loss: {F_min:.6f}")
         
-        return P_best, F_min        
+    #     for iteration in range(max_iters):
+    #         # Exploitation phase (3 iterations)
+    #         for exploit_iter in range(3):
+    #             P_lattice = self._exploit_params(model, loss_function, X, y, P_lattice, loss_lattice, F_min, F_max)
+    #             loss_lattice, F_min, F_max, P_best = self._evaluate_fitness(model, loss_function, X, y, P_lattice, loss_lattice)
+
+    #         # Exploration phase
+    #         P_lattice = self._explore_params(model, loss_function, X, y, P_lattice, loss_lattice, F_min, F_max)
+    #         loss_lattice, F_min, F_max, P_best = self._evaluate_fitness(model, loss_function, X, y, P_lattice, loss_lattice)
+            
+    #         # Print progress every 100 iterations
+    #         if (iteration + 1) % 100 == 0:
+    #             # print(f"Iteration {iteration + 1:4d} | Best Loss: {F_min:.6f}")
+    #             param_std = np.std(P_lattice, axis=(0,1))
+    #             print(f"Param std dev: {np.mean(param_std):.4f}")
+    #             print(f"Params at bounds: {np.sum(np.abs(P_lattice) >= 99)}")
+    #             num_good = np.sum(self._classify_cells(loss_lattice, F_min, F_max)[0])
+    #             print(f"Iteration {iteration + 1:4d} | Best Loss: {F_min:.6f} | Good Cells: {num_good}/{self.L*self.L}")
+
+    #     print("=" * 50)
+    #     print("OPTIMIZATION COMPLETE")
+    #     print("=" * 50)
+    #     print(f"Final Best Loss: {F_min:.6f}")
+    #     print(f"Best Parameters: {P_best}")
+    #     print("=" * 50)
+        
+    #     return P_best, F_min        

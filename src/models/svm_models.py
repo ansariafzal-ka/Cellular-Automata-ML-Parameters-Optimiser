@@ -7,6 +7,7 @@ class SupportVectorClassifier(Model):
         super().__init__()
         self.weights = np.zeros(n_features)
         self.bias = 0.0
+        self.bounds = [(-1000.0, 1000.0)] * self.get_param_count()
 
     def predict(self, X):
         raw_predictions = X.dot(self.weights) + self.bias
@@ -21,16 +22,20 @@ class SupportVectorClassifier(Model):
 
     def get_param_count(self):
         return len(self.weights) + 1
+    
+    def set_param_bounds(self, bounds):
+        self.bounds = bounds * self.get_param_count()
 
     def get_param_bounds(self):
-        num_params = self.get_param_count()
-        return [(-100.0, 100.0)] * num_params
+        return  self.bounds
     
 class SupportVectorRegression(Model):
     def __init__(self, n_features):
         super().__init__()
         self.weights = np.zeros(n_features)
         self.bias = 0.0
+        self.bounds = [(-1000.0, 1000.0)] * self.get_param_count()
+
 
     def predict(self, X):
         return X.dot(self.weights) + self.bias
@@ -44,7 +49,9 @@ class SupportVectorRegression(Model):
 
     def get_param_count(self):
         return len(self.weights) + 1
+    
+    def set_param_bounds(self, bounds):
+        self.bounds = bounds * self.get_param_count()
 
     def get_param_bounds(self):
-        num_params = self.get_param_count()
-        return [(-100.0, 100.0)] * num_params
+        return self.bounds
