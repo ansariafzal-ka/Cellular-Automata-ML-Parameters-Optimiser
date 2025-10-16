@@ -43,7 +43,7 @@ mini_batch_gradient_descent = MiniBatchGradientDescent(configurations.ALPHA)
 ca_optimiser = CellularAutomataOptimiser(L=5, mu=0.01, omega=0.8)
 
 ## BATCH GRADIENT DESCENT (BGD)
-bgd_results = batch_gradient_descent.optimise(model, mse, X_train, y_train, max_iters=configurations.MAX_ITERS)
+bgd_results = batch_gradient_descent.optimise(model, mae, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(bgd_results["parameters"])
 
 y_train_pred_bgd = model.predict(X_train)
@@ -66,7 +66,7 @@ test_r2_results.append(test_r2_bgd)
 params.append(bgd_results["parameters"])
 
 ## STOCHASTIC GRADIENT DESCENT (SGD)
-sgd_results = stochastic_gradient_descent.optimise(model, mse, X_train, y_train, max_iters=configurations.MAX_ITERS)
+sgd_results = stochastic_gradient_descent.optimise(model, mae, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(sgd_results["parameters"])
 
 y_train_pred_sgd = model.predict(X_train)
@@ -89,7 +89,7 @@ test_r2_results.append(test_r2_sgd)
 params.append(sgd_results["parameters"])
 
 ## MINI-BATCH GRADIENT DESCENT (MBGD)
-mini_bgd_results = mini_batch_gradient_descent.optimise(model, mse, X_train, y_train, max_iters=configurations.MAX_ITERS)
+mini_bgd_results = mini_batch_gradient_descent.optimise(model, mae, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(mini_bgd_results["parameters"])
 
 y_train_pred_mbgd = model.predict(X_train)
@@ -113,7 +113,8 @@ params.append(mini_bgd_results["parameters"])
 
 
 ## CELLULAR AUTOMATA
-ca_results = ca_optimiser.optimise(model, mse, X_train, y_train, max_iters=configurations.MAX_ITERS)
+ca_max_iters = 1000
+ca_results = ca_optimiser.optimise(model, mae, X_train, y_train, max_iters=ca_max_iters)
 model.set_params(ca_results['parameters'])
 
 y_train_pred_ca = model.predict(X_train)
@@ -164,6 +165,7 @@ print("="*50)
 print("             OPTIMIZATION ALGORITHMS RESULTS")
 print("="*50)
 print(f"Configuration: MAX_ITERS={configurations.MAX_ITERS}, TEST_SIZE={configurations.TEST_SIZE}, ALPHA={configurations.ALPHA}, SEED={configurations.SEED}")
+print(f"Cellular Automata Optimiser Configurations: L={ca_optimiser.L}, μ={ca_optimiser.mu}, ω={ca_optimiser.omega}, max_iters={ca_max_iters}")
 print("="*50)
 
 optimizers = ["Batch Gradient Descent", "Stochastic Gradient Descent", "Mini-Batch Gradient Descent", "Cellular Automata", "Sklearn LinearRegression"]

@@ -186,10 +186,10 @@ class CellularAutomataOptimiser(Optimiser):
         P_lattice, loss_lattice = self._initialise_lattice(model)
         loss_lattice, F_min, F_max, P_best = self._evaluate_fitness(model, loss_function, X, y, P_lattice, loss_lattice)
         
-        print("\n")
-        print("="*50)
-        print(f"Configuration: L={self.L}, μ={self.mu}, ω={self.omega}, max_iters={max_iters}")
-        print("="*50)
+        # print("\n")
+        # print("="*50)
+        # print(f"Configuration: L={self.L}, μ={self.mu}, ω={self.omega}, max_iters={max_iters}")
+        # print("="*50)
         
         for iteration in range(max_iters):
             # Exploitation phase (3 iterations)

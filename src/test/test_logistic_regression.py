@@ -35,15 +35,18 @@ bce = BinaryCrossEntropy()
 batch_gradient_descent = BatchGradientDescent(configurations.ALPHA)
 stochastic_gradient_descent = StochasticGradientDescent(configurations.ALPHA)
 mini_batch_gradient_descent = MiniBatchGradientDescent(configurations.ALPHA)
+ca_optimiser = CellularAutomataOptimiser(L=5, mu=0.01, omega=0.8)
+ca_max_iters = 1000
 
 print("="*50)
 print("             OPTIMIZATION ALGORITHMS RESULTS")
 print("="*50)
 print(f"Configuration: MAX_ITERS={configurations.MAX_ITERS}, TEST_SIZE={configurations.TEST_SIZE}, ALPHA={configurations.ALPHA}, SEED={configurations.SEED}")
+print(f"Cellular Automata Optimiser Configurations: L={ca_optimiser.L}, μ={ca_optimiser.mu}, ω={ca_optimiser.omega}, max_iters={ca_max_iters}")
 print("="*50)
 
 ## BATCH GRADIENT DESCENT (BGD)
-print("--- Training with Batch Gradient Descent ---")
+print("\n--- Training with Batch Gradient Descent ---")
 bgd_results = batch_gradient_descent.optimise(model, bce, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(bgd_results["parameters"])
 
@@ -74,8 +77,7 @@ print(report_mbgd)
 
 ## CELLULAR AUTOMATA
 model.set_param_bounds([(-1000.0, 1000.0)]) # gives good result although it gives overflow warning
-cellular_automata = CellularAutomataOptimiser(L=5, mu=0.01, omega=0.8)
-cellular_automata_results = cellular_automata.optimise(model, bce, X_train, y_train, max_iters=10)
+cellular_automata_results = ca_optimiser.optimise(model, bce, X_train, y_train, max_iters=10)
 model.set_params(cellular_automata_results["parameters"])
 
 y_test_pred_cellular_automata = model.predict_labels(X_test)

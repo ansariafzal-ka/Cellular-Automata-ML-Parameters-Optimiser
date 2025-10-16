@@ -108,10 +108,13 @@ test_mae_results.append(test_mae_mbgd)
 train_r2_results.append(train_r2_mbgd)
 test_r2_results.append(test_r2_mbgd)
 
+
 ## CELLULAR AUTOMATA
 model.set_param_bounds([(-1000.0, 1000.0)]) # for diabetes dataset
 # model.set_param_bounds([(-10.0, 10.0)]) # for california housing dataset
-ca_results = ca_optimiser.optimise(model, mse, X_train, y_train, max_iters=1000)
+
+ca_max_iters = 1000
+ca_results = ca_optimiser.optimise(model, mse, X_train, y_train, max_iters=ca_max_iters)
 # print(f"cellular automata params: {ca_results['parameters']}")
 model.set_params(ca_results['parameters'])
 
@@ -136,8 +139,8 @@ test_r2_results.append(test_r2_ca)
 sk_model = SK_LinearRegression()
 sk_model.fit(X_train, y_train)
 
-sk_params = [sk_model.coef_, sk_model.intercept_]
-print(f"sk params : {sk_params}")
+# sk_params = [sk_model.coef_, sk_model.intercept_]
+# print(f"sk params : {sk_params}")
 
 y_train_pred_sk = sk_model.predict(X_train)
 y_test_pred_sk = sk_model.predict(X_test)
@@ -160,9 +163,11 @@ test_r2_results.append(test_r2_sk)
 print("="*50)
 print("             OPTIMIZATION ALGORITHMS RESULTS")
 print("="*50)
+print(f"Configuration: MAX_ITERS={configurations.MAX_ITERS}, TEST_SIZE={configurations.TEST_SIZE}, ALPHA={configurations.ALPHA}, SEED={configurations.SEED}")
+print(f"Cellular Automata Optimiser Configurations: L={ca_optimiser.L}, μ={ca_optimiser.mu}, ω={ca_optimiser.omega}, max_iters={ca_max_iters}")
+print("="*50)
 
 optimizers = ["Batch Gradient Descent", "Stochastic Gradient Descent", "Mini-Batch Gradient Descent", "Cellular Automata", "Sklearn LinearRegression"]
-# optimizers = ["Cellular Automata", "Sklearn LinearRegression"]
 
 for i, optimizer in enumerate(optimizers):
     print(f"--- {optimizer} ---")
