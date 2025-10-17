@@ -44,30 +44,28 @@ class CategoricalCrossEntropy(LossFunction):
 
         return np.concatenate([dw.flatten(), db.flatten()])
     
+
 class HingeLoss(LossFunction):
-    def __init__(self):
-        self.C = 1.0
-        self.weights = None
+
+    def __init__(self, C, weights):
+        super().__init__()
+        self.C = C
+        self.weights = weights
 
     def compute_loss(self, y_true, y_predictions):
-        y_true = np.where(y_true >= 0, 1, -1)
-        hinge_loss = np.mean(np.maximum(0, 1 - y_true * y_predictions))
-        reg_loss = 0.5 * np.sum(self.weights ** 2) if self.weights is not None else 0.0
-        
-        return reg_loss + self.C * hinge_loss
+        hinge_loss = np.sum(np.maximum(0, 1 - y_true * y_predictions))
+        margin = (np.linalg.norm(self.weights) ** 2) * 0.5
+
+        return  margin + self.C * hinge_loss
     
-    def compute_gradient(self, X, y_true, y_prediction):
-        y_true = np.where(y_true >= 0, 1, -1)
-        m = X.shape[0]
+    def compute_gradient(self, X, y_true, y_predictions):
 
-        margin = y_true * y_prediction
-        mask = (margin < 1).astype(float)
+        condition = y_true * y_predictions
+        mask = (condition < 1).astype(float)
 
-        if self.weights is None:
-            self.weights = np.zeros(X.shape[1])
+        dw_error = -self.C * X.T.dot(y_true * mask)
+        dw = self.weights + dw_error
 
-        dw = self.weights - self.C * (X.T.dot(y_true * mask) / m)
-        db = -self.C * np.sum(y_true * mask) / m
+        db = -self.C * np.sum(y_true * mask)
 
         return np.concatenate([dw.flatten(), [db]])
-        
