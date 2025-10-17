@@ -1,17 +1,31 @@
 from .base_model import Model
+from ..loss_functions.classification_losses import HingeLoss
 import numpy as np
 
 
 class SupportVectorClassifier(Model):
-    def __init__(self, n_features):
+    def __init__(self, n_features, C=1.0):
         super().__init__()
         self.weights = np.zeros(n_features)
         self.bias = 0.0
+        self.C = C
         self.bounds = [(-1000.0, 1000.0)] * self.get_param_count()
+        self.loss_fn = HingeLoss()
 
     def predict(self, X):
         raw_predictions = X.dot(self.weights) + self.bias
-        return np.where(raw_predictions >= 0, 1, 0)
+        return np.where(raw_predictions >= 0, 1, -1)
+    
+    def compute_loss_gradient(self, X, y_true):
+        y_pred = X.dot(self.weights) + self.bias
+
+        self.loss_fn.C = self.C
+        self.loss_fn.weights = self.weights
+
+        loss = self.loss_fn.compute_loss(y_true, y_pred)
+        gradient = self.loss_fn.compute_gradient(X, y_true, y_pred)
+        
+        return loss, gradient
 
     def get_params(self):
         return np.concatenate([self.weights, [self.bias]])
