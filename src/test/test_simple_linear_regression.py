@@ -5,10 +5,13 @@ from src.optimisers.cellular_automata import CellularAutomataOptimiser
 from src.utils import configurations
 
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression as SK_LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
+
+np.random.seed(configurations.SEED)
 
 n_features = 1
 train_mse_results = []
@@ -43,7 +46,7 @@ mini_batch_gradient_descent = MiniBatchGradientDescent(configurations.ALPHA)
 ca_optimiser = CellularAutomataOptimiser(L=5, mu=0.01, omega=0.8)
 
 ## BATCH GRADIENT DESCENT (BGD)
-bgd_results = batch_gradient_descent.optimise(model, mae, X_train, y_train, max_iters=configurations.MAX_ITERS)
+bgd_results = batch_gradient_descent.optimise(model, mse, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(bgd_results["parameters"])
 
 y_train_pred_bgd = model.predict(X_train)
@@ -66,7 +69,7 @@ test_r2_results.append(test_r2_bgd)
 params.append(bgd_results["parameters"])
 
 ## STOCHASTIC GRADIENT DESCENT (SGD)
-sgd_results = stochastic_gradient_descent.optimise(model, mae, X_train, y_train, max_iters=configurations.MAX_ITERS)
+sgd_results = stochastic_gradient_descent.optimise(model, mse, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(sgd_results["parameters"])
 
 y_train_pred_sgd = model.predict(X_train)
@@ -89,7 +92,7 @@ test_r2_results.append(test_r2_sgd)
 params.append(sgd_results["parameters"])
 
 ## MINI-BATCH GRADIENT DESCENT (MBGD)
-mini_bgd_results = mini_batch_gradient_descent.optimise(model, mae, X_train, y_train, max_iters=configurations.MAX_ITERS)
+mini_bgd_results = mini_batch_gradient_descent.optimise(model, mse, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(mini_bgd_results["parameters"])
 
 y_train_pred_mbgd = model.predict(X_train)
@@ -114,7 +117,7 @@ params.append(mini_bgd_results["parameters"])
 
 ## CELLULAR AUTOMATA
 ca_max_iters = 1000
-ca_results = ca_optimiser.optimise(model, mae, X_train, y_train, max_iters=ca_max_iters)
+ca_results = ca_optimiser.optimise(model, mse, X_train, y_train, max_iters=ca_max_iters)
 model.set_params(ca_results['parameters'])
 
 y_train_pred_ca = model.predict(X_train)
