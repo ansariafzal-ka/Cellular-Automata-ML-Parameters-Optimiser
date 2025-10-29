@@ -12,8 +12,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression as SK_LinearRegression
 from sklearn.metrics import r2_score
 
-np.random.seed(configurations.SEED)
-
 degree = 3
 
 train_mse_results = []
@@ -77,6 +75,7 @@ train_r2_results.append(train_r2_bgd)
 test_r2_results.append(test_r2_bgd)
 
 ## STOCHASTIC GRADIENT DESCENT (SGD)
+model = LinearRegression(n_features=n_features)
 sgd_results = stochastic_gradient_descent.optimise(model, mae, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(sgd_results["parameters"])
 
@@ -99,6 +98,7 @@ test_r2_results.append(test_r2_sgd)
 
 
 ## MINI-BATCH GRADIENT DESCENT (MBGD)
+model = LinearRegression(n_features=n_features)
 mini_bgd_results = mini_batch_gradient_descent.optimise(model, mae, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(mini_bgd_results["parameters"])
 
@@ -120,7 +120,8 @@ train_r2_results.append(train_r2_mbgd)
 test_r2_results.append(test_r2_mbgd)
 
 ## CELLULAR AUTOMATA
-model.set_param_bounds([(-50.0, 50.0)])
+model = LinearRegression(n_features=n_features)
+model.set_param_bounds([(-100.0, 100.0)])
 ca_max_iters = 1000
 ca_results = ca_optimiser.optimise(model, mae, X_train, y_train, max_iters=ca_max_iters)
 # print(f"cellular automata params: {ca_results['parameters']}")
@@ -147,7 +148,7 @@ test_r2_results.append(test_r2_ca)
 sk_model = SK_LinearRegression()
 sk_model.fit(X_train, y_train)
 
-# sk_params = [sk_model.coef_, sk_model.intercept_]
+sk_params = [sk_model.coef_, sk_model.intercept_]
 # print(f"sk params : {sk_params}")
 
 y_train_pred_sk = sk_model.predict(X_train)

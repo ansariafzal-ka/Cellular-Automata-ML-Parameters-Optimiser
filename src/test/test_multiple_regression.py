@@ -11,7 +11,7 @@ from sklearn.linear_model import LinearRegression as SK_LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
 
-np.random.seed(configurations.SEED)
+# np.random.seed(configurations.SEED)
 
 train_mse_results = []
 test_mse_results = []
