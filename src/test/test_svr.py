@@ -10,7 +10,6 @@ from sklearn.svm import SVR
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
 
-# np.random.seed(configurations.SEED)
 
 train_mse_results = []
 test_mse_results = []
