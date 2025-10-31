@@ -11,7 +11,6 @@ from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
-np.random.seed(configurations.SEED)
 
 df = pd.read_csv('src/datasets/breast_cancer.csv')
 
@@ -47,7 +46,7 @@ print(f"Cellular Automata Optimiser Configurations: L={ca_optimiser.L}, μ={ca_o
 bgd_results = batch_gradient_descent.optimise(model, hinge_loss, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(bgd_results["parameters"])
 
-y_test_pred_bgd = model.predict(X_test)
+y_test_pred_bgd = np.where(model.predict(X_test) >= 0, 1, -1)
 
 print('='*50)
 print('BGD Classification Report:')
@@ -59,7 +58,7 @@ print('='*50)
 sgd_results = stochastic_gradient_descent.optimise(model, hinge_loss, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(sgd_results["parameters"])
 
-y_test_pred_sgd = model.predict(X_test)
+y_test_pred_sgd = np.where(model.predict(X_test) >= 0, 1, -1)
 
 print('='*50)
 print('SGD Classification Report:')
@@ -70,7 +69,7 @@ print('='*50)
 mini_bgd_results = mini_batch_gradient_descent.optimise(model, hinge_loss, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(mini_bgd_results["parameters"])
 
-y_test_pred_mbgd = model.predict(X_test)
+y_test_pred_mbgd = np.where(model.predict(X_test) >= 0, 1, -1)
 
 print('='*50)
 print('Mini BGD Classification Report:')
@@ -83,7 +82,7 @@ cellular_automata_results = ca_optimiser.optimise(model, hinge_loss, X_train, y_
 # print(f"cellular automata params: {cellular_automata_results['parameters']}")
 model.set_params(cellular_automata_results["parameters"])
 
-y_test_pred_cellular_automata = model.predict(X_test)
+y_test_pred_cellular_automata = np.where(model.predict(X_test) >= 0, 1, -1)
 
 print('='*50)
 print("CA Classification Report:")

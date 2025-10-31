@@ -10,8 +10,6 @@ from sklearn.linear_model import LogisticRegression as SKLogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
-np.random.seed(configurations.SEED)
-
 train_results = []
 test_results = []
 
@@ -46,6 +44,7 @@ print(f"Cellular Automata Optimiser Configurations: L={ca_optimiser.L}, μ={ca_o
 print("="*50)
 
 ## BATCH GRADIENT DESCENT (BGD)
+model.set_param_bounds([(-1000.0, 1000.0)]) 
 print("\n--- Training with Batch Gradient Descent ---")
 bgd_results = batch_gradient_descent.optimise(model, bce, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(bgd_results["parameters"])
@@ -56,6 +55,7 @@ print("\nClassification Report for BGD:")
 print(report_bgd)
 
 ## STOCHASTIC GRADIENT DESCENT (SGD)
+model.set_param_bounds([(-1000.0, 1000.0)]) 
 print("--- Training with Stochastic Gradient Descent ---")
 sgd_results = stochastic_gradient_descent.optimise(model, bce, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(sgd_results["parameters"])
@@ -66,6 +66,7 @@ print("\nClassification Report for SGD:")
 print(report_sgd)
 
 ## MINI-BATCH GRADIENT DESCENT (MBGD)
+model.set_param_bounds([(-1000.0, 1000.0)]) 
 print("--- Training with Mini-Batch Gradient Descent ---")
 mini_bgd_results = mini_batch_gradient_descent.optimise(model, bce, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(mini_bgd_results["parameters"])
@@ -89,8 +90,8 @@ print(report_cellular_automata)
 sk_model = SKLogisticRegression()
 sk_model.fit(X_train, y_train)
 
-# sk_params = [sk_model.coef_, sk_model.intercept_]
-# print(f"sk params : {sk_params}")
+sk_params = [sk_model.coef_, sk_model.intercept_]
+print(f"sk params : {sk_params}")
 
 y_test_pred_sk = sk_model.predict(X_test)
 print("\nClassification Report for Sklearn:")

@@ -10,8 +10,6 @@ from sklearn.linear_model import LogisticRegression as SKLogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
-np.random.seed(configurations.SEED)
-
 
 train_results = []
 test_results = []

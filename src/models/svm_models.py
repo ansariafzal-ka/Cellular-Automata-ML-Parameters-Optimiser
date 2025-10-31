@@ -13,9 +13,9 @@ class SupportVectorClassifier(Model):
         self.bounds = [(-1000.0, 1000.0)] * self.get_param_count()
         self.loss_fn = HingeLoss(self.C, self.weights)
 
+    
     def predict(self, X):
-        raw_predictions = X.dot(self.weights) + self.bias
-        return np.where(raw_predictions >= 0, 1, -1)
+        return X.dot(self.weights) + self.bias    
 
     def get_params(self):
         return np.concatenate([self.weights, [self.bias]])
