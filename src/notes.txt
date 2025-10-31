@@ -1,0 +1,4 @@
+- For MLR Diabetes use [-1000, 1000], for MLR California use [-10, 10], for all other models use [-1000, 1000]
+- For PLR use [-1000, 1000], even when CA seems to fail for MSE because it works for MAE
+- Even for Logistic Regression use [-1000, 1000] for scientific consistency.
+- Investigate further for SVR and SVC

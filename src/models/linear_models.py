@@ -37,7 +37,7 @@ class LogisticRegression(Model):
         self.weights = np.zeros(n_features)
         self.bias = 0.0
         self.threshold = threshold
-        self.bounds = [(-5.0, 5.0)] * self.get_param_count()
+        self.bounds = [(-1000.0, 1000.0)] * self.get_param_count()
 
     def _sigmoid(self, z):
         return 1 / (1 + np.exp(-z))
