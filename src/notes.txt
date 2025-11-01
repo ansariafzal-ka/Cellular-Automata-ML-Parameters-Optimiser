@@ -7,11 +7,21 @@
 
 SLR - DONE - Bounds: [-1000, 1000], Alpha: 0.01
 PLR - DONE - Bounds: [-1000, 1000], Alpha: 0.01
-MLR (Diabetes) - DONE - Bounds: [-1000, 1000], Alpha: 0.01  
-Logistic Regression - DONE - Bounds: [-10, 10], Alpha: 0.01  (-1000,1000) was giving warnings for numeric instability
-Softmax Regression - DONE - Bounds: [-10, 10], Alpha: 0.01   (-1000,1000) was giving warnings for numeric instability
+MLR (Diabetes) - DONE - Bounds: [-1000, 1000], Alpha: 0.01 
 
+SVC (California) - DONE - Bounds: [-1000, 1000], Alpha: 0.01
+SVR (Diabetes) - DONE - Bounds: [-1000, 1000], Alpha: 0.01
 
-MLR (California) - pending - Bounds: [-10, 10], Alpha: 0.0001
-SVR (Diabetes) - pending - Bounds: [To investigate], Alpha: 0.01
-SVC (California) - pending - Bounds: [To investigate], Alpha: 0.01
+=======================================================================================================================
+Logistic and Softmax Regression produced exponential overflow due to very large weight initialisations. 
+Hence, the bounds were restricted to [-10, 10] to maintain numerical stability during the sigmoid/softmax computation.
+
+Logistic Regression - DONE - Bounds: [-10, 10], Alpha: 0.01 -> (-1000,1000) was causing exponential overflow
+Softmax Regression - DONE - Bounds: [-10, 10], Alpha: 0.01  -> (-1000,1000) was causing exponential overflow
+=======================================================================================================================
+The parameter bounds and learning rate were reduced to [-10, 10] and 0.0001 respectively, to prevent exploding gradients 
+and ensure numerical stability during optimisation, because the California dataset has large number of records
+
+MLR (California) - DONE - Bounds: [-10, 10], Alpha: 0.0001
+SVR (California) - DONE - Bounds: [-10, 10], Alpha: 0.0001
+=======================================================================================================================

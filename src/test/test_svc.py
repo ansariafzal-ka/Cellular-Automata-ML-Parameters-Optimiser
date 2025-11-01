@@ -33,7 +33,7 @@ stochastic_gradient_descent = StochasticGradientDescent(configurations.ALPHA)
 mini_batch_gradient_descent = MiniBatchGradientDescent(configurations.ALPHA)
 
 ca_optimiser = CellularAutomataOptimiser(L=5, mu=0.01, omega=0.8)
-ca_max_iters = 10
+ca_max_iters = 1000
 
 print("="*50)
 print("             OPTIMIZATION ALGORITHMS RESULTS")
@@ -52,6 +52,8 @@ print('='*50)
 print('BGD Classification Report:')
 print(classification_report(y_test, y_test_pred_bgd))
 print('='*50)
+print(f'Hinge Loss: {hinge_loss.compute_loss(y_test, y_test_pred_bgd)}')
+print('='*50)
 
 
 ## STOCHASTIC GRADIENT DESCENT ##
@@ -64,6 +66,9 @@ print('='*50)
 print('SGD Classification Report:')
 print(classification_report(y_test, y_test_pred_sgd))
 print('='*50)
+print(f'Hinge Loss: {hinge_loss.compute_loss(y_test, y_test_pred_sgd)}')
+print('='*50)
+
 
 ## MINI BATCH GRADIENT DESCENT ##
 mini_bgd_results = mini_batch_gradient_descent.optimise(model, hinge_loss, X_train, y_train, max_iters=configurations.MAX_ITERS)
@@ -74,6 +79,8 @@ y_test_pred_mbgd = np.where(model.predict(X_test) >= 0, 1, -1)
 print('='*50)
 print('Mini BGD Classification Report:')
 print(classification_report(y_test, y_test_pred_mbgd))
+print('='*50)
+print(f'Hinge Loss: {hinge_loss.compute_loss(y_test, y_test_pred_mbgd)}')
 print('='*50)
 
 ## CELLULAR AUTOMATA ##
@@ -87,6 +94,8 @@ y_test_pred_cellular_automata = np.where(model.predict(X_test) >= 0, 1, -1)
 print('='*50)
 print("CA Classification Report:")
 print(classification_report(y_test, y_test_pred_cellular_automata))
+print('='*50)
+print(f'Hinge Loss: {hinge_loss.compute_loss(y_test, y_test_pred_cellular_automata)}')
 print('='*50)
 
 ## SKLEARN MODEL ##

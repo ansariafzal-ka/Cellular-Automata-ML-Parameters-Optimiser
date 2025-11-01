@@ -44,7 +44,7 @@ print(f"Cellular Automata Optimiser Configurations: L={ca_optimiser.L}, μ={ca_o
 print("="*50)
 
 ## BATCH GRADIENT DESCENT (BGD)
-# model.set_param_bounds([(-1000.0, 1000.0)]) 
+# model.set_param_bounds([(-1000.0, 1000.0)])
 print("\n--- Training with Batch Gradient Descent ---")
 bgd_results = batch_gradient_descent.optimise(model, bce, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(bgd_results["parameters"])
