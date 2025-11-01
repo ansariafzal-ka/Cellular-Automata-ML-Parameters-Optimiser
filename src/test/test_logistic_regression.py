@@ -44,7 +44,7 @@ print(f"Cellular Automata Optimiser Configurations: L={ca_optimiser.L}, μ={ca_o
 print("="*50)
 
 ## BATCH GRADIENT DESCENT (BGD)
-model.set_param_bounds([(-1000.0, 1000.0)]) 
+# model.set_param_bounds([(-1000.0, 1000.0)]) 
 print("\n--- Training with Batch Gradient Descent ---")
 bgd_results = batch_gradient_descent.optimise(model, bce, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(bgd_results["parameters"])
@@ -55,7 +55,7 @@ print("\nClassification Report for BGD:")
 print(report_bgd)
 
 ## STOCHASTIC GRADIENT DESCENT (SGD)
-model.set_param_bounds([(-1000.0, 1000.0)]) 
+# model.set_param_bounds([(-1000.0, 1000.0)])
 print("--- Training with Stochastic Gradient Descent ---")
 sgd_results = stochastic_gradient_descent.optimise(model, bce, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(sgd_results["parameters"])
@@ -66,7 +66,7 @@ print("\nClassification Report for SGD:")
 print(report_sgd)
 
 ## MINI-BATCH GRADIENT DESCENT (MBGD)
-model.set_param_bounds([(-1000.0, 1000.0)]) 
+# model.set_param_bounds([(-1000.0, 1000.0)]) 
 print("--- Training with Mini-Batch Gradient Descent ---")
 mini_bgd_results = mini_batch_gradient_descent.optimise(model, bce, X_train, y_train, max_iters=configurations.MAX_ITERS)
 model.set_params(mini_bgd_results["parameters"])
@@ -77,7 +77,7 @@ print("\nClassification Report for MBGD:")
 print(report_mbgd)
 
 ## CELLULAR AUTOMATA
-model.set_param_bounds([(-1000.0, 1000.0)]) # gives good result although it gives overflow warning
+# model.set_param_bounds([(-1000.0, 1000.0)]) # gives good result although it gives overflow warning
 cellular_automata_results = ca_optimiser.optimise(model, bce, X_train, y_train, max_iters=10)
 model.set_params(cellular_automata_results["parameters"])
 

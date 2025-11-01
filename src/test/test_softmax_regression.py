@@ -15,6 +15,7 @@ train_results = []
 test_results = []
 
 df = pd.read_csv("src/datasets/iris.csv")
+print('Shape of data: ', df.shape)
 
 X = df.drop("target", axis=1)
 y = df["target"]
@@ -76,7 +77,7 @@ print("\nClassification Report for MBGD:")
 print(report_mbgd)
 
 ## CELLULAR AUTOMATA
-model.set_param_bounds([(-11.0, 11.0)])
+# model.set_param_bounds([(-11.0, 11.0)])
 cellular_automata_results = ca_optimiser.optimise(model, cce, X_train, y_train, max_iters=500)
 # print(f"cellular automata params: {cellular_automata_results['parameters']}")
 model.set_params(cellular_automata_results["parameters"])

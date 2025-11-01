@@ -37,6 +37,9 @@ epsilon_intensive_loss = EpsilonIntensitiveLoss(model.C, model.weights, epsilon=
 mse = MeanSquaredError()
 mae = MeanAbsoluteError()
 
+print(model.get_param_bounds())
+# model.set_param_bounds([(-10.0, 10.0)]) # for california housing
+
 batch_gradient_descent = BatchGradientDescent(configurations.ALPHA)
 stochastic_gradient_descent = StochasticGradientDescent(configurations.ALPHA)
 mini_batch_gradient_descent = MiniBatchGradientDescent(configurations.ALPHA, batch_size=16)
@@ -106,8 +109,7 @@ train_r2_results.append(train_r2_mbgd)
 test_r2_results.append(test_r2_mbgd)
 
 ## CELLULAR AUTOMATA
-model.set_param_bounds([(-1000.0, 1000.0)]) # for diabetes
-# model.set_param_bounds([(-10.0, 10.0)]) # for california housing
+
 ca_max_iters = 1000
 ca_results = ca_optimiser.optimise(model, epsilon_intensive_loss, X_train, y_train, max_iters=ca_max_iters)
 model.set_params(ca_results['parameters'])

@@ -11,7 +11,6 @@ from sklearn.linear_model import LinearRegression as SK_LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
 
-# np.random.seed(configurations.SEED)
 
 train_mse_results = []
 test_mse_results = []
@@ -20,8 +19,8 @@ test_mae_results = []
 train_r2_results = []
 test_r2_results = []
 
-df = pd.read_csv("src/datasets/diabetes.csv")
-# df = pd.read_csv("src/datasets/california_housing.csv")
+# df = pd.read_csv("src/datasets/diabetes.csv")
+df = pd.read_csv("src/datasets/california_housing.csv")
 
 X = df.drop("target", axis=1)
 y = df["target"]
@@ -44,6 +43,9 @@ stochastic_gradient_descent = StochasticGradientDescent(configurations.ALPHA)
 mini_batch_gradient_descent = MiniBatchGradientDescent(configurations.ALPHA, batch_size=16)
 ca_optimiser = CellularAutomataOptimiser(L=5, mu=0.01, omega=0.8)
 
+
+# model.set_param_bounds([(-1000.0, 1000.0)]) # for diabetes dataset
+model.set_param_bounds([(-10.0, 10.0)]) # for california housing dataset
 
 ## BATCH GRADIENT DESCENT (BGD)
 bgd_results = batch_gradient_descent.optimise(model, mse, X_train, y_train, max_iters=configurations.MAX_ITERS)
@@ -110,8 +112,6 @@ test_r2_results.append(test_r2_mbgd)
 
 
 ## CELLULAR AUTOMATA
-model.set_param_bounds([(-1000.0, 1000.0)]) # for diabetes dataset
-# model.set_param_bounds([(-10.0, 10.0)]) # for california housing dataset
 
 ca_max_iters = 1000
 ca_results = ca_optimiser.optimise(model, mse, X_train, y_train, max_iters=ca_max_iters)
