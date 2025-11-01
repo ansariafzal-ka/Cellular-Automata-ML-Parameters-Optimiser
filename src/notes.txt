@@ -1,4 +1,17 @@
-- For MLR Diabetes use [-1000, 1000], for MLR California use [-10, 10], for all other models use [-1000, 1000]
+- For MLR Diabetes use [-1000, 1000], for MLR California use [-10, 10] because of exploading gradients, for all other models use [-1000, 1000]
 - For PLR use [-1000, 1000], even when CA seems to fail for MSE because it works for MAE
-- Even for Logistic Regression use [-1000, 1000] for scientific consistency.
+- Even for Logistic Regression and Softmax Regression use [-10, 10] to avoid errors
 - Investigate further for SVR and SVC
+
+
+
+SLR - DONE - Bounds: [-1000, 1000], Alpha: 0.01
+PLR - DONE - Bounds: [-1000, 1000], Alpha: 0.01
+MLR (Diabetes) - DONE - Bounds: [-1000, 1000], Alpha: 0.01  
+Logistic Regression - DONE - Bounds: [-10, 10], Alpha: 0.01  (-1000,1000) was giving warnings for numeric instability
+Softmax Regression - DONE - Bounds: [-10, 10], Alpha: 0.01   (-1000,1000) was giving warnings for numeric instability
+
+
+MLR (California) - pending - Bounds: [-10, 10], Alpha: 0.0001
+SVR (Diabetes) - pending - Bounds: [To investigate], Alpha: 0.01
+SVC (California) - pending - Bounds: [To investigate], Alpha: 0.01
