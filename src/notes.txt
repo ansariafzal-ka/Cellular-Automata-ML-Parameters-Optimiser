@@ -25,3 +25,71 @@ and ensure numerical stability during optimisation, because the California datas
 MLR (California) - DONE - Bounds: [-10, 10], Alpha: 0.0001
 SVR (California) - DONE - Bounds: [-10, 10], Alpha: 0.0001
 =======================================================================================================================
+
+Methodology Structure:
+
+3. Methodology
+3.1 Overview
+
+Briefly describe the experimental goal — implementing and comparing gradient-based (BGD, SGD, MBGD) and metaheuristic (CA) optimisers across regression and classification models.
+
+3.2 Datasets
+
+List and justify datasets used:
+
+Diabetes dataset (MLR, SVR)
+
+California Housing dataset (MLR)
+
+Iris dataset (Logistic, Softmax, SVC)
+Include preprocessing (normalisation, train-test split).
+
+3.3 Models
+
+Explain models used:
+
+SLR, PLR, MLR
+
+Logistic Regression
+
+Softmax Regression
+
+SVR, SVC
+Mention each model’s objective function and constraints.
+
+3.4 Loss Functions
+
+List and explain:
+
+MSE, MAE (regression)
+
+Epsilon-Insensitive Loss (SVR)
+
+Cross Entropy (Softmax)
+
+Hinge Loss (SVC)
+
+3.5 Optimisation Algorithms
+
+Describe:
+
+Batch, Stochastic, Mini-Batch Gradient Descent (include learning rate, update rules).
+
+Cellular Automata Optimiser (CAO) — briefly explain its parameters (L, μ, ω).
+
+3.6 Experimental Setup
+
+State configuration:
+
+Bounds per model
+
+Learning rates (α)
+
+Max iterations, number of runs (10)
+
+Evaluation metrics (MSE, MAE, R², Accuracy, F1)
+Justify bounds (e.g., [-10,10] for stability in large datasets).
+
+3.7 Evaluation Procedure
+
+Explain averaging across runs, loss curve plotting, and performance comparison.
