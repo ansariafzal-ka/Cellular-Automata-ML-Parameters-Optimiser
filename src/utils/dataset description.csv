@@ -1,0 +1,7 @@
+Dataset,Task,Source,"Shape"
+California Housing,Regression,Real-world,"(20640,9)"
+Diabetes Dataset,Regression,Real-world,"(442,11)"
+Custom SLR,Regression,Custom generated,"(100,1)"
+Custom PLR,Regression,Custom generated,"(300,5)"
+Breast Cancer Wisconsin,Classification,Real-world,"(569,31)"
+Iris Dataset,Classification,Real-world,"(150,5)"
