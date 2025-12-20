@@ -36,7 +36,7 @@ class MeanAbsoluteError(LossFunction):
 
         return np.concatenate([dw.flatten(), [db]])
     
-class EpsilonIntensitiveLoss(LossFunction):
+class EpsilonInsensitiveLoss(LossFunction):
 
     def __init__(self, C, weights, epsilon=0.1):
         super().__init__()

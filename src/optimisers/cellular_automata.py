@@ -178,7 +178,7 @@ class CellularAutomataOptimiser(Optimiser):
                     
                 P_new_lattice[i, j] = new_params
 
-        return P_new_lattice 
+        return P_new_lattice
 
 
     def optimise(self, model, loss_function, X, y, max_iters=1000):

@@ -1,6 +1,6 @@
 from .base_model import Model
 from ..loss_functions.classification_losses import HingeLoss
-from ..loss_functions.regression_losses import EpsilonIntensitiveLoss
+from ..loss_functions.regression_losses import EpsilonInsensitiveLoss
 import numpy as np
 
 
@@ -41,7 +41,7 @@ class SupportVectorRegression(Model):
         self.bias = 0.0
         self.C = C
         self.bounds = [(-1000.0, 1000.0)] * self.get_param_count()
-        self.loss_fn = EpsilonIntensitiveLoss(self.C, self.weights, epsilon=0.1)
+        self.loss_fn = EpsilonInsensitiveLoss(self.C, self.weights, epsilon=0.1)
 
 
     def predict(self, X):
