@@ -50,7 +50,7 @@ class CellularAutomataOptimiser(Optimiser):
         denomenator = F_max - F_min
         epsilon = 1e-10 # prevent division by zero
 
-        # note: we are checking the cells for the normalised relative loss and not the actual loss
+        # reminder: we are checking the cells for the normalised relative loss and not the actual loss
         normalised_relative_fitness = numerator / (denomenator + epsilon)
         is_good_cell = (normalised_relative_fitness <= self.mu)
 
